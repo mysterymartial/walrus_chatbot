@@ -187,6 +187,18 @@ These interactive documentation pages allow you to explore and test the API dire
 In production mode (`DEBUG=False`), these documentation endpoints are disabled for security reasons, as configured in `main.py`:
 
 ```python
+# Import required modules
+from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from app.core.config import settings
+
+# Define lifespan in main.py, not in dependencies.py
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup logic
+    yield
+    # Shutdown logic
+
 app = FastAPI(
     title=settings.app_name,
     version=settings.version,
@@ -205,10 +217,36 @@ app = FastAPI(
 
 ```typescript
 // Using fetch API with TypeScript
-import { ChatRequest, ChatResponse } from './types';
+// Import types from the types directory
+import { ChatRequest, ChatResponse } from '../types/api';
 
-async function askSuiChatbot(query: string): Promise<ChatResponse> {
-  const request: ChatRequest = { query };
+// Note: This project includes a tsconfig.json file with the following configuration:
+// {
+//   "compilerOptions": {
+//     "target": "es6",
+//     "module": "commonjs",
+//     "esModuleInterop": true,
+//     "strict": true,
+//     "outDir": "./dist",
+//     "rootDir": "./src",
+//     "declaration": true,
+//     "sourceMap": true
+//   },
+//   "include": [
+//     "./src/**/*",
+//     "./types/**/*"
+//   ]
+// }
+//
+// To avoid "Corresponding file is not included in tsconfig.json" error,
+// make sure your TypeScript files are in the src/ or types/ directories
+
+// This code is available in src/client.ts
+async function askSuiChatbot(query: string, apiKey?: string): Promise<ChatResponse> {
+  const request: ChatRequest = { 
+    query,
+    api_key: apiKey
+  };
   
   try {
     const response = await fetch('http://localhost:8000/api/v1/chat', {
@@ -234,7 +272,7 @@ async function askSuiChatbot(query: string): Promise<ChatResponse> {
 // Example usage
 async function example() {
   try {
-    const result = await askSuiChatbot('How do I create a Move module on Sui?');
+    const result = await askSuiChatbot('How do I create a Move module on Sui?', 'your_api_key');
     console.log('Response:', result.response);
     console.log('Processing time:', result.processing_time, 'seconds');
   } catch (error) {
@@ -242,18 +280,7 @@ async function example() {
   }
 }
 
-// Type definitions
-export interface ChatRequest {
-  query: string;
-}
-
-export interface ChatResponse {
-  success: boolean;
-  response: string;
-  query: string;
-  context_found: boolean;
-  processing_time: number;
-}
+// Note: Types are defined in types/api.d.ts
 ```
 
 ### JavaScript
@@ -265,7 +292,8 @@ const axios = require('axios');
 async function askSuiChatbot(query) {
   try {
     const response = await axios.post('http://localhost:8000/api/v1/chat', {
-      query: query
+      query: query,
+      api_key: 'your_api_key'
     });
     
     return response.data;
@@ -326,7 +354,7 @@ The project requires the following main dependencies:
 1. Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/yourusername/suiChatbot.git
 cd suiChatbot
 ```
 
@@ -491,7 +519,7 @@ Based on our testing, the API has the following performance characteristics:
 
 - **Simple queries**: ~5-6 seconds response time
 - **Complex queries**: ~7-8 seconds response time
-- **Resource usage**: Lightweight (88MB working set, 72MB private memory)
+- **Resource usage**: Lightweight (approximately 88MB working set, 72MB private memory)
 
 To optimize performance:
 
