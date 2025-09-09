@@ -9,5 +9,6 @@ requests
 python-dotenv
 pydantic
 python-multipart
+pydantic-settings
 
 
