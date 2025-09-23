@@ -62,14 +62,25 @@ The system automatically checks this local database first before querying extern
 
 ### Walrus Support
 
-The chatbot now supports Walrus (on Sui) alongside Sui/Move:
+The chatbot now supports Walrus (on Sui) alongside Sui/Move with comprehensive features:
 
-- **Walrus-first search**: Walrus queries prioritize authoritative sources (`walruslabs.xyz`, Walrus GitHub) before general Sui/Move docs.
+- **Walrus-first search**: Walrus queries prioritize authoritative sources (`walruslabs.xyz`, Walrus GitHub, Walrus docs, blogs, Medium, Mirror) before general Sui/Move docs.
+- **Local Walrus knowledge**: Instant responses for common Walrus topics (blobs, DA, architecture, tokens, validators).
+- **Real-time network data**: Fetches live validator counts, stake amounts, and network stats from Walrus Scan and Sui Scan.
 - **Price lookup**: When users ask about price/worth/market cap, the bot fetches current price via CoinGecko public API.
+- **Scan integration**: Includes Walrus Scan (`walrusscan.com`) and Sui Scan (`suiscan.xyz`) for real-time blockchain data.
 - **Scoped answers**: The assistant only answers Sui/Move/Walrus topics. Out-of-scope questions receive a polite message.
-- **Performance**: Narrow site filters, short timeouts, and capped results for fast responses.
+- **Performance**: Local database first, then targeted external searches for fast responses.
 
-No additional configuration is required for Walrus price (CoinGecko public endpoints). Tavily remains optional but recommended for higher-quality results.
+**Supported Walrus Topics:**
+- Walrus blobs and data storage
+- Data availability (DA) solutions
+- Network validators and statistics
+- Token economics and pricing
+- Architecture and integration with Sui
+- Real-time network metrics
+
+No additional configuration is required for Walrus price or network stats (public APIs). Tavily remains optional but recommended for higher-quality results.
 
 ## Project Structure
 
@@ -82,14 +93,15 @@ No additional configuration is required for Walrus price (CoinGecko public endpo
 │   │   ├── config.py          # Configuration settings
 │   │   └── dependencies.py     # Dependency injection
 │   ├── data/
-│   │   └── sui_info.py        # Local SUI blockchain information database
+│   │   ├── sui_info.py        # Local SUI blockchain information database
+│   │   └── walrus_info.py   # Local Walrus information database
 │   ├── models/
 │   │   └── chat.py            # Data models
 │   ├── services/
 │   │   ├── ai_service.py      # AI response generation
-│   │   ├── search_service.py  # Search functionality
+│   │   ├── search_service.py  # Search functionality with Walrus/Sui Scan
 │   │   └── validation_service.py # Input validation
-│   ├── test/
+│   ├── tests/
 │   │   ├── test_chat_api.py   # API endpoint tests
 │   │   ├── test_integration.py # Integration tests
 │   │   └── test_service.py    # Service unit tests
@@ -172,11 +184,19 @@ Host: localhost:8000
       "Sui objects",
       "Move modules",
       "Sui transactions",
-      "Move programming language"
+      "Move programming language",
+      "Walrus data availability",
+      "Walrus blobs and storage",
+      "Walrus network validators",
+      "Walrus token economics",
+      "Real-time blockchain statistics"
     ]
   },
   "example_request": {
     "query": "How do I create a Move module on Sui?"
+  },
+  "example_walrus_request": {
+    "query": "What is a Walrus blob and how many validators are on the Walrus network?"
   }
 }
 ```
@@ -224,6 +244,48 @@ app = FastAPI(
 
 ## Client Examples
 
+### Postman/API Testing
+
+**Health Check:**
+```
+GET https://your-app.up.railway.app/api/v1/health
+```
+
+**Chat Endpoint:**
+```
+POST https://your-app.up.railway.app/api/v1/chat
+Content-Type: application/json
+
+{
+  "query": "What is a Walrus blob and how many validators are on the Walrus network?"
+}
+```
+
+**Sui Question:**
+```
+POST https://your-app.up.railway.app/api/v1/chat
+Content-Type: application/json
+
+{
+  "query": "How do I create a Move module on Sui?"
+}
+```
+
+**Walrus Price Query:**
+```
+POST https://your-app.up.railway.app/api/v1/chat
+Content-Type: application/json
+
+{
+  "query": "What is the current price of Walrus token?"
+}
+```
+
+**API Info:**
+```
+GET https://your-app.up.railway.app/api/v1/info
+```
+
 ### TypeScript
 
 ```typescript
@@ -260,7 +322,7 @@ async function askSuiChatbot(query: string, apiKey?: string): Promise<ChatRespon
   };
   
   try {
-    const response = await fetch('http://localhost:8000/api/v1/chat', {
+    const response = await fetch('https://your-app.up.railway.app/api/v1/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -302,7 +364,7 @@ const axios = require('axios');
 
 async function askSuiChatbot(query) {
   try {
-    const response = await axios.post('http://localhost:8000/api/v1/chat', {
+    const response = await axios.post('https://your-app.up.railway.app/api/v1/chat', {
       query: query,
       api_key: 'your_api_key'
     });
@@ -417,7 +479,46 @@ These environment variables are passed to the Docker container in the `docker-co
 
 ## Deployment
 
-### Docker
+### Railway (Recommended - Fast & Free)
+
+**Railway** is the recommended deployment platform for fast, free hosting:
+
+1. **Go to Railway**: Visit [railway.app](https://railway.app)
+2. **Sign up with GitHub**: Connect your GitHub account
+3. **Deploy from GitHub**: 
+   - Click "New Project" → "Deploy from GitHub repo"
+   - Select your `suiChatbot` repository
+4. **Configure deployment**:
+   - Railway auto-detects your Dockerfile
+   - Internal port: `8000`
+   - Build command: (leave empty, uses Dockerfile)
+5. **Set environment variables**:
+   - Go to "Variables" tab
+   - Add: `OPENAI_API_KEY` = your OpenAI key
+   - Add: `TAVILY_API_KEY` = your Tavily key (optional)
+6. **Deploy**: Click "Deploy" and wait 2-3 minutes
+7. **Get your URL**: Railway provides a `.up.railway.app` URL
+
+**Benefits:**
+- ✅ No credit card required
+- ✅ Fast deployment (2-3 minutes)
+- ✅ Always warm (no cold starts)
+- ✅ 500 hours/month free
+- ✅ Auto-scaling
+
+### Alternative Free Platforms
+
+**Deta Space** (Always warm):
+- Go to [deta.space](https://deta.space)
+- Connect GitHub → Deploy Dockerfile
+- No cold starts, completely free
+
+**Google Cloud Run** (Always free tier):
+- Go to [console.cloud.google.com](https://console.cloud.google.com)
+- Enable Cloud Run → Deploy from GitHub
+- 2M requests/month free
+
+### Docker (Local/Server)
 
 The project includes Docker configuration for easy deployment:
 

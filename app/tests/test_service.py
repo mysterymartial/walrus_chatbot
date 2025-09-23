@@ -147,9 +147,10 @@ class TestSearchService:
     @patch('app.services.search_service.SearchService._search_tavily')
     @patch('app.services.search_service.SearchService._search_duckduckgo')
     def test_search_walrus_first_strategy(self, mock_ddg, mock_tavily):
+        # Test with a query that doesn't match local patterns to trigger external search
         mock_tavily.return_value = "Walrus documentation"
         mock_ddg.return_value = None
-        result = self.service.search_sui_docs("Tell me about Walrus")
+        result = self.service.search_sui_docs("Walrus API endpoints and integration methods")
         assert result.startswith("Walrus documentation")
 
     @patch('requests.get')
@@ -197,6 +198,73 @@ class TestSearchService:
 
             result = self.service.search_sui_docs("What is the Walrus coin price?")
             assert "$0.99" in result
+
+    def test_local_walrus_info_prioritized(self):
+        from app.services.search_service import SearchService
+        service = SearchService()
+
+        # Test Walrus blob query should return local info first
+        result = service.search_sui_docs("What is a walrus blob?")
+        assert "blob" in result.lower()
+        assert "walrus" in result.lower()
+
+    def test_walrus_sources_expanded(self):
+        from app.services.search_service import SearchService
+        service = SearchService()
+
+        # Test that Walrus queries use expanded sources
+        with patch('app.services.search_service.SearchService._search_tavily') as mock_tavily:
+            mock_tavily.return_value = "Walrus documentation"
+            service.search_sui_docs("Walrus API documentation and SDK references")
+            
+            # Check that _search_tavily was called
+            assert mock_tavily.called
+            call_args = mock_tavily.call_args[0][0]  # First positional argument (query)
+            assert "walrus" in call_args.lower()
+
+    @patch('requests.get')
+    def test_walrus_network_stats(self, mock_get):
+        from app.services.search_service import SearchService
+        service = SearchService()
+
+        mock_response = Mock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {
+            "validators": {"total": 25},
+            "network": {"total_stake": 1000000, "active_nodes": 30}
+        }
+        mock_get.return_value = mock_response
+
+        stats = service._get_walrus_network_stats()
+        assert "Active Validators: 25" in stats
+        assert "Total Stake: 1,000,000 WAL" in stats
+        assert "Active Nodes: 30" in stats
+
+    @patch('requests.get')
+    def test_sui_network_stats(self, mock_get):
+        from app.services.search_service import SearchService
+        service = SearchService()
+
+        mock_response = Mock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {
+            "validators": {"total": 100},
+            "network": {"total_stake": 5000000, "tps": 1000}
+        }
+        mock_get.return_value = mock_response
+
+        stats = service._get_sui_network_stats()
+        assert "Active Validators: 100" in stats
+        assert "Total Stake: 5,000,000 SUI" in stats
+        assert "Current TPS: 1000" in stats
+
+    def test_walrus_validator_local_info(self):
+        from app.services.search_service import SearchService
+        service = SearchService()
+
+        result = service.search_sui_docs("How many validators on Walrus?")
+        assert "validator" in result.lower()
+        assert "walrus" in result.lower()
 
 class TestAIService:
 
