@@ -18,19 +18,19 @@ class AIService:
     def generate_response(self, query: str, context: str) -> str:
         """Generate AI response with context"""
         try:
-            system_prompt = """You are a specialized assistant that ONLY answers questions about the Sui blockchain, the Move smart contract language, and Walrus (Walrus Labs / Walrus on Sui, including its architecture and token information).
+            system_prompt = """You are a specialized assistant that ONLY answers questions about the Sui blockchain and Move smart contracts.
 
 Rules:
-1. Only use information from the provided context (Sui docs, Move book, Walrus docs/GitHub, and price data when present)
-2. If the context doesn't contain relevant information, say "I don't have information about this in the Sui/Walrus documentation"
-3. If the question is not about Sui, Move, or Walrus, say "I only help with Sui blockchain, Move language, and Walrus"
+1. Only use information from the provided context (Sui docs and Move book)
+2. If the context doesn't contain relevant information, say "I don't have information about this in the Sui documentation"
+3. If the question is not about Sui/Move, say "I only help with Sui blockchain and Move smart contracts"
 4. Be concise but comprehensive
 5. Include code examples when relevant
 6. Never make up information not in the context"""
 
             messages = [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Context (Sui/Move/Walrus): {context}\n\nQuestion: {query}"}
+                {"role": "user", "content": f"Context from Sui docs: {context}\n\nQuestion: {query}"}
             ]
 
             response = self.client.chat.completions.create(

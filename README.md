@@ -406,14 +406,6 @@ These environment variables are passed to the Docker container in the `docker-co
 
 ## Deployment
 
-### Live Application
-
-The SUI Chatbot is deployed and accessible at:
-
-**[https://suidashboard.onrender.com](https://suidashboard.onrender.com)**
-
-This live version is hosted on Render and provides all the functionality of the API.
-
 ### Docker
 
 The project includes Docker configuration for easy deployment:
@@ -441,66 +433,6 @@ docker-compose logs -f
 ```bash
 docker-compose down
 ```
-
-### Docker Configuration
-
-The application uses the following Docker configuration from the Dockerfile:
-
-```dockerfile
-FROM python:3.11-slim
-
-# Set working directory
-WORKDIR /app
-
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/app
-
-# Install system dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        gcc \
-        && rm -rf /var/lib/apt/lists/*
-
-COPY requirements.txt .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-# Create non-root user for security
-RUN adduser --disabled-password --gecos '' appuser \
-    && chown -R appuser:appuser /app
-USER appuser
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/api/v1/health')" || exit 1
-
-EXPOSE 8000
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
-
-The application runs on port 8000 inside the container and includes a health check to ensure the API is functioning properly.
-
-### Accessing the Application
-
-When running the application using Docker:
-
-1. **Local Access**: After starting the container, access the API at `http://localhost:8000`
-
-2. **API Endpoints**: 
-   - Main chat endpoint: `http://localhost:8000/api/v1/chat`
-   - Health check: `http://localhost:8000/api/v1/health`
-   - Documentation: `http://localhost:8000/docs` or `http://localhost:8000/redoc`
-
-3. **Remote Access**: If deploying to a server, replace `localhost` with your server's IP address or domain name
-
-The same endpoints are available on the live application at `https://suidashboard.onrender.com`
 
 ### Production Considerations
 
