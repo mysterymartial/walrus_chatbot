@@ -123,24 +123,33 @@ This integration makes Sui the ideal blockchain for applications requiring both 
     "walrus_validators": """
 Walrus Network Validators are the core infrastructure providers that maintain the Walrus data availability network:
 
-Validator Role:
+What are Validators:
+- Validators are nodes that store and serve blob data across the Walrus network
+- They participate in consensus for data availability and integrity
+- Validators maintain network security and decentralization
+- They earn rewards for providing storage services to the network
+
+Validator Functions:
 - Store and serve blob data across the network
 - Participate in consensus for data availability
 - Maintain network security and decentralization
 - Earn rewards for providing storage services
+- Ensure data redundancy and fault tolerance
 
 Network Statistics:
 - Validator count varies based on network growth and adoption
 - Validators are distributed globally for optimal performance
 - Each validator maintains redundant copies of blob data
 - Network scales horizontally as more validators join
+- Current validator count and network stats available via Walrus Scan
 
 Validator Requirements:
 - Sufficient storage capacity for blob data
 - Reliable network connectivity
 - Stake WAL tokens for network participation
 - Meet technical requirements for data serving
+- Maintain uptime and data availability
 
-Current network stats are available through Walrus Scan APIs, showing real-time validator count, total stake, and network health metrics.
+Real-time network statistics including validator count, total stake, and network health metrics are available through Walrus Scan APIs at walrusscan.com.
 """
 }

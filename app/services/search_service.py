@@ -165,7 +165,8 @@ class SearchService:
         except Exception as e:
             self.logger.error(f"Failed to fetch Walrus network stats: {e}")
         
-        return None
+        # Fallback: Return basic Walrus network info if API fails
+        return "Walrus Network: The Walrus network consists of distributed validators that provide data availability services. Validator count varies based on network growth and adoption. For real-time stats, visit walrusscan.com"
 
     def _get_sui_network_stats(self) -> Optional[str]:
         """Fetch Sui network statistics from Sui Scan API."""
@@ -225,13 +226,13 @@ class SearchService:
 
         # Check Walrus patterns first for faster response
         walrus_patterns = {
-            "what_is_walrus": [r"what is walrus", r"walrus blockchain", r"about walrus", r"walrus overview", r"define walrus", r"walrus definition"],
+            "what_is_walrus": [r"what is walrus", r"walrus blockchain", r"about walrus", r"walrus overview", r"define walrus", r"walrus definition", r"walrus"],
             "walrus_da": [r"walrus da", r"data availability", r"walrus data availability", r"da solution"],
-            "walrus_blobs": [r"walrus blob", r"blob storage", r"data blob", r"walrus data blob"],
+            "walrus_blobs": [r"walrus blob", r"blob storage", r"data blob", r"walrus data blob", r"blob", r"walrus.*blob"],
             "walrus_architecture": [r"walrus architecture", r"how walrus works", r"walrus design", r"walrus structure"],
             "walrus_token": [r"walrus token", r"wal token", r"wal coin", r"walrus economics", r"walrus tokenomics"],
             "walrus_sui": [r"walrus sui", r"walrus on sui", r"walrus sui integration"],
-            "walrus_validators": [r"walrus validator", r"walrus validators", r"how many validator", r"walrus network", r"walrus nodes"]
+            "walrus_validators": [r"walrus validator", r"walrus validators", r"how many validator", r"walrus network", r"walrus nodes", r"validator.*walrus", r"how many.*walrus", r"validator", r"validators"]
         }
 
         for info_key, pattern_list in walrus_patterns.items():
@@ -274,6 +275,12 @@ class SearchService:
             walrus_content = self._search_walrus(query)
             if walrus_content:
                 return walrus_content
+            
+            # If no content found but it's a Walrus query, try to get network stats
+            if re.search(r"validator|validators|network|nodes|stake|tps|stats", query, re.IGNORECASE):
+                network_stats = self._get_walrus_network_stats()
+                if network_stats:
+                    return network_stats
 
         # Fallback to general search
         content = self._search_tavily(query)
