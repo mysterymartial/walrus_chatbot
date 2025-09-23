@@ -126,3 +126,22 @@ class TestChatAPI:
             json={"query": "   "}
         )
         assert response.status_code == 422
+
+    @patch('app.services.search_service.SearchService.search_sui_docs')
+    @patch('app.services.ai_service.AIService.generate_response')
+    def test_chat_endpoint_walrus_query(self, mock_ai, mock_search):
+        mock_search.return_value = (
+            "Walrus is a data availability solution on Sui. Current Walrus price (CoinGecko): $1.00"
+        )
+        mock_ai.return_value = "Walrus provides DA on Sui. Price info included."
+
+        response = client.post(
+            "/api/v1/chat",
+            json={"query": "What is Walrus on Sui and what's the price?"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert data["context_found"] is True
+        assert "Walrus" in data["response"]

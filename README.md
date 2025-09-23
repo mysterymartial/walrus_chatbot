@@ -37,8 +37,8 @@ The SUI Chatbot API provides a specialized interface for answering questions abo
 ## Features
 
 - **AI-Powered Responses**: Utilizes OpenAI's models to generate accurate and helpful answers
-- **Specialized Knowledge**: Focused on SUI blockchain and Move smart contract topics
-- **Tiered Search System**: Local SUI information database with Tavily search and DuckDuckGo fallback for comprehensive results
+- **Specialized Knowledge**: Focused on SUI blockchain, Move smart contracts, and Walrus
+- **Tiered Search System**: Local SUI information database with Tavily search and DuckDuckGo fallback; Walrus queries prioritize `walruslabs.xyz` and Walrus GitHub
 - **Input Validation**: Ensures queries meet length and content requirements
 - **Error Handling**: Robust error management with appropriate status codes and messages
 - **Docker Support**: Easy deployment with containerization
@@ -59,6 +59,17 @@ The API includes a built-in knowledge base about SUI blockchain fundamentals, en
 - Smart contract development
 
 The system automatically checks this local database first before querying external sources, providing faster and more reliable responses for common questions about SUI.
+
+### Walrus Support
+
+The chatbot now supports Walrus (on Sui) alongside Sui/Move:
+
+- **Walrus-first search**: Walrus queries prioritize authoritative sources (`walruslabs.xyz`, Walrus GitHub) before general Sui/Move docs.
+- **Price lookup**: When users ask about price/worth/market cap, the bot fetches current price via CoinGecko public API.
+- **Scoped answers**: The assistant only answers Sui/Move/Walrus topics. Out-of-scope questions receive a polite message.
+- **Performance**: Narrow site filters, short timeouts, and capped results for fast responses.
+
+No additional configuration is required for Walrus price (CoinGecko public endpoints). Tavily remains optional but recommended for higher-quality results.
 
 ## Project Structure
 
