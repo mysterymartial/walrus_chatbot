@@ -71,6 +71,20 @@ class TestSearchService:
         call_args = mock_post.call_args[1]['json']
         assert "site:docs.sui.io OR site:move-language.github.io OR site:move-book.com" in call_args['query']
 
+    @patch('requests.post')
+    def test_tavily_search_prioritizes_walrus(self, mock_post):
+        service = self.service
+        mock_response = Mock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {"results": [{"content": "Walrus DA on Sui"}]}
+        mock_post.return_value = mock_response
+
+        result = service._search_tavily("What is Walrus on Sui?")
+
+        assert "Walrus DA on Sui" in result
+        call_args = mock_post.call_args[1]['json']
+        assert "site:walruslabs.xyz" in call_args['query']
+
     @patch('requests.get')
     def test_duckduckgo_search_fallback(self, mock_get):
 
@@ -91,6 +105,22 @@ class TestSearchService:
         call_args = mock_get.call_args[1]['params']
         assert "site:docs.sui.io OR site:move-language.github.io" in call_args['q']
 
+    @patch('requests.get')
+    def test_duckduckgo_prioritizes_walrus(self, mock_get):
+        mock_response = Mock()
+        mock_response.json.return_value = {
+            "AbstractText": "Walrus is a data availability solution on Sui",
+            "RelatedTopics": [{"Text": "Walrus GitHub repo"}]
+        }
+        mock_get.return_value = mock_response
+
+        from app.services.search_service import SearchService
+        service = SearchService()
+        result = service._search_duckduckgo("Walrus price on Sui")
+        assert "Walrus is a data availability" in result
+        call_args = mock_get.call_args[1]['params']
+        assert "site:walruslabs.xyz" in call_args['q']
+
     @patch('app.services.search_service.SearchService._search_tavily')
     @patch('app.services.search_service.SearchService._search_duckduckgo')
     def test_search_fallback_strategy(self, mock_ddg, mock_tavily):
@@ -106,6 +136,16 @@ class TestSearchService:
 
     @patch('app.services.search_service.SearchService._search_tavily')
     @patch('app.services.search_service.SearchService._search_duckduckgo')
+    def test_search_walrus_first_strategy(self, mock_ddg, mock_tavily):
+        from app.services.search_service import SearchService
+        service = SearchService()
+        mock_tavily.return_value = "Walrus documentation"
+        mock_ddg.return_value = None
+        result = service.search_sui_docs("Tell me about Walrus")
+        assert result.startswith("Walrus documentation")
+
+    @patch('app.services.search_service.SearchService._search_tavily')
+    @patch('app.services.search_service.SearchService._search_duckduckgo')
     def test_search_no_results_raises_error(self, mock_ddg, mock_tavily):
 
         mock_tavily.return_value = None
@@ -116,6 +156,60 @@ class TestSearchService:
 
 
         assert "Could not find relevant information" in str(exc.value.message)
+
+    @patch('requests.get')
+    def test_get_walrus_price(self, mock_get):
+        from app.services.search_service import SearchService
+        service = SearchService()
+        # Mock search endpoint
+        search_resp = Mock()
+        search_resp.raise_for_status.return_value = None
+        search_resp.json.return_value = {"coins": [{"id": "walrus", "name": "Walrus"}]}
+        # Mock price endpoint
+        price_resp = Mock()
+        price_resp.raise_for_status.return_value = None
+        price_resp.json.return_value = {"walrus": {"usd": 1.23}}
+
+        def side_effect(url, params=None, timeout=5):
+            if "search" in url:
+                return search_resp
+            if "simple/price" in url:
+                return price_resp
+            raise AssertionError("Unexpected URL")
+
+        mock_get.side_effect = side_effect
+
+        info = service._get_walrus_price()
+        assert "$1.23" in info
+
+    @patch('requests.get')
+    def test_walrus_price_included_when_asking_price(self, mock_get):
+        from app.services.search_service import SearchService
+        service = SearchService()
+
+        # search services return content empty so price path is exercised
+        with patch('app.services.search_service.SearchService._search_tavily', return_value=None), \
+             patch('app.services.search_service.SearchService._search_duckduckgo', return_value=None):
+
+            search_resp = Mock()
+            search_resp.raise_for_status.return_value = None
+            search_resp.json.return_value = {"coins": [{"id": "walrus", "name": "Walrus"}]}
+
+            price_resp = Mock()
+            price_resp.raise_for_status.return_value = None
+            price_resp.json.return_value = {"walrus": {"usd": 0.99}}
+
+            def side_effect(url, params=None, timeout=5):
+                if "search" in url:
+                    return search_resp
+                if "simple/price" in url:
+                    return price_resp
+                raise AssertionError("Unexpected URL")
+
+            mock_get.side_effect = side_effect
+
+            result = service.search_sui_docs("What is the Walrus coin price?")
+            assert "$0.99" in result
 
 class TestAIService:
 
@@ -147,8 +241,8 @@ class TestAIService:
         assert "Sui is a blockchain platform" in result
         call_args = mock_client.chat.completions.create.call_args[1]
         system_message = call_args['messages'][0]['content']
-        assert "Sui blockchain and Move smart contracts" in system_message
-        assert "Context from Sui docs" in call_args['messages'][1]['content']
+        assert "Sui blockchain, the Move smart contract language, and Walrus" in system_message
+        assert "Context (Sui/Move/Walrus):" in call_args['messages'][1]['content']
 
     @patch('openai.OpenAI')
     def test_ai_service_handles_errors(self, mock_openai_class):
