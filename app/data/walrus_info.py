@@ -142,6 +142,8 @@ Network Statistics:
 - Each validator maintains redundant copies of blob data
 - Network scales horizontally as more validators join
 - Current validator count and network stats available via Walrus Scan
+- For exact validator count, check walrusscan.com for real-time data
+- Validator numbers change as the network grows and new validators join
 
 Validator Requirements:
 - Sufficient storage capacity for blob data

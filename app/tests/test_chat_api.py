@@ -145,3 +145,33 @@ class TestChatAPI:
         assert data["success"] is True
         assert data["context_found"] is True
         assert "Walrus" in data["response"]
+
+    @patch('app.services.search_service.SearchService.search_sui_docs')
+    @patch('app.services.ai_service.AIService.generate_response')
+    def test_chat_endpoint_general_blockchain_query(self, mock_ai, mock_search):
+        mock_search.return_value = "Blockchain is a distributed ledger technology that enables secure transactions."
+        mock_ai.return_value = "Blockchain is a distributed ledger technology that enables secure, transparent, and immutable transactions across a network of computers."
+
+        response = client.post(
+            "/api/v1/chat",
+            json={"query": "What is blockchain technology?"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert "blockchain" in data["response"].lower()
+        assert data["context_found"] is True
+        assert "processing_time" in data
+
+    def test_chat_endpoint_non_blockchain_query_rejection(self):
+        response = client.post(
+            "/api/v1/chat",
+            json={"query": "What is the weather today?"}
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is False  # Non-blockchain queries return success=False
+        assert "I couldn't find information about your question" in data["response"]
+        assert data["context_found"] is False

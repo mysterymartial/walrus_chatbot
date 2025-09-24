@@ -24,12 +24,25 @@ class SearchService:
         ]
         return any(re.search(term, q, re.IGNORECASE) for term in walrus_terms)
 
-    def _search_tavily(self, query: str) -> Optional[str]:
+    def _is_blockchain_related(self, query: str) -> bool:
+        """Check if query is related to blockchain, Sui, Move, or Walrus topics."""
+        q = query.lower()
+        blockchain_terms = [
+            r"blockchain", r"crypto", r"cryptocurrency", r"defi", r"nft", r"dapp",
+            r"sui", r"move", r"walrus", r"smart contract", r"token", r"coin",
+            r"validator", r"consensus", r"staking", r"gas", r"transaction"
+        ]
+        return any(re.search(term, q, re.IGNORECASE) for term in blockchain_terms)
+
+    def _search_tavily_site_specific(self, query: str) -> Optional[str]:
+        """Search using our configured authoritative sources first"""
         if not settings.tavily_api_key:
             return None
 
         try:
             url = "https://api.tavily.com/search"
+            
+            # Use our configured authoritative sources
             walrus_sites = (
                 "site:walruslabs.xyz OR site:github.com/mystenlabs/walrus OR site:github.com/walruslabs OR "
                 "site:docs.walruslabs.xyz OR site:blog.walruslabs.xyz OR site:medium.com/@walruslabs OR "
@@ -38,10 +51,89 @@ class SearchService:
             )
             sui_sites = "site:docs.sui.io OR site:move-language.github.io OR site:move-book.com"
             query_filter = f"{walrus_sites} OR {sui_sites}" if self._is_walrus_query(query) else sui_sites
+            search_query = f"{query} {query_filter}"
 
             payload = {
                 "api_key": settings.tavily_api_key,
-                "query": f"{query} {query_filter}",
+                "query": search_query,
+                "search_depth": "basic",
+                "max_results": 5
+            }
+
+            response = requests.post(url, json=payload, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+
+            content = ""
+            for result in data.get("results", []):
+                content += f"{result.get('title', '')}\n{result.get('content', '')}\n\n"
+
+            return content.strip() if content else None
+
+        except Exception as e:
+            self.logger.error(f"Tavily site-specific search failed: {e}")
+            return None
+
+    def _search_duckduckgo_site_specific(self, query: str) -> Optional[str]:
+        """Search using our configured authoritative sources first"""
+        try:
+            search_url = "https://api.duckduckgo.com/"
+            
+            # Use our configured authoritative sources
+            ddg_sites = (
+                "site:walruslabs.xyz OR site:github.com/mystenlabs/walrus OR site:github.com/walruslabs OR "
+                "site:docs.walruslabs.xyz OR site:blog.walruslabs.xyz OR site:medium.com/@walruslabs OR "
+                "site:mirror.xyz/walruslabs OR site:walrus.xyz OR site:walrusscan.com OR site:suiscan.xyz"
+                if self._is_walrus_query(query)
+                else "site:docs.sui.io OR site:move-language.github.io OR site:suiexplorer.com"
+            )
+            params = {
+                'q': f"{query} {ddg_sites}",
+                'format': 'json',
+                'no_html': '1',
+                'skip_disambig': '1'
+            }
+
+            response = requests.get(search_url, params=params, timeout=5)
+            data = response.json()
+
+            content = ""
+            for result in data.get("results", []):
+                content += f"{result.get('title', '')}\n{result.get('abstract', '')}\n\n"
+
+            return content.strip() if content else None
+
+        except Exception as e:
+            self.logger.error(f"DuckDuckGo site-specific search failed: {e}")
+            return None
+
+    def _search_tavily(self, query: str) -> Optional[str]:
+        if not settings.tavily_api_key:
+            return None
+
+        try:
+            url = "https://api.tavily.com/search"
+            
+            # For blockchain-related queries, use general internet search
+            if self._is_blockchain_related(query):
+                # General internet search with blockchain focus for broader results
+                blockchain_keywords = "blockchain cryptocurrency crypto sui move walrus"
+                search_query = f"{query} {blockchain_keywords}"
+            else:
+                # Use site-specific search for focused results
+                walrus_sites = (
+                    "site:walruslabs.xyz OR site:github.com/mystenlabs/walrus OR site:github.com/walruslabs OR "
+                    "site:docs.walruslabs.xyz OR site:blog.walruslabs.xyz OR site:medium.com/@walruslabs OR "
+                    "site:mirror.xyz/walruslabs OR site:walrus.xyz OR site:walrus-docs.xyz OR "
+                    "site:walrusscan.com OR site:suiscan.xyz OR site:suiexplorer.com"
+                )
+                sui_sites = "site:docs.sui.io OR site:move-language.github.io OR site:move-book.com"
+                query_filter = f"{walrus_sites} OR {sui_sites}" if self._is_walrus_query(query) else sui_sites
+                search_query = f"{query} {query_filter}"
+
+            payload = {
+                "api_key": settings.tavily_api_key,
+                "query": search_query,
                 "search_depth": "basic",
                 "max_results": 5
             }
@@ -68,19 +160,32 @@ class SearchService:
     def _search_duckduckgo(self, query: str) -> Optional[str]:
         try:
             search_url = "https://api.duckduckgo.com/"
-            ddg_sites = (
-                "site:walruslabs.xyz OR site:github.com/mystenlabs/walrus OR site:github.com/walruslabs OR "
-                "site:docs.walruslabs.xyz OR site:blog.walruslabs.xyz OR site:medium.com/@walruslabs OR "
-                "site:mirror.xyz/walruslabs OR site:walrus.xyz OR site:walrusscan.com OR site:suiscan.xyz"
-                if self._is_walrus_query(query)
-                else "site:docs.sui.io OR site:move-language.github.io OR site:suiscan.xyz OR site:suiexplorer.com"
-            )
-            params = {
-                'q': f"{query} {ddg_sites}",
-                'format': 'json',
-                'no_html': '1',
-                'skip_disambig': '1'
-            }
+            
+            # For blockchain-related queries, use general search with blockchain keywords
+            if self._is_blockchain_related(query):
+                # General internet search with blockchain focus
+                blockchain_terms = "blockchain sui move walrus cryptocurrency crypto"
+                params = {
+                    'q': f"{query} {blockchain_terms}",
+                    'format': 'json',
+                    'no_html': '1',
+                    'skip_disambig': '1'
+                }
+            else:
+                # Use site-specific search for focused results
+                ddg_sites = (
+                    "site:walruslabs.xyz OR site:github.com/mystenlabs/walrus OR site:github.com/walruslabs OR "
+                    "site:docs.walruslabs.xyz OR site:blog.walruslabs.xyz OR site:medium.com/@walruslabs OR "
+                    "site:mirror.xyz/walruslabs OR site:walrus.xyz OR site:walrusscan.com OR site:suiscan.xyz"
+                    if self._is_walrus_query(query)
+                    else "site:docs.sui.io OR site:move-language.github.io OR site:suiscan.xyz OR site:suiexplorer.com"
+                )
+                params = {
+                    'q': f"{query} {ddg_sites}",
+                    'format': 'json',
+                    'no_html': '1',
+                    'skip_disambig': '1'
+                }
 
             response = requests.get(search_url, params=params, timeout=5)
             data = response.json()
@@ -232,7 +337,7 @@ class SearchService:
             "walrus_architecture": [r"walrus architecture", r"how walrus works", r"walrus design", r"walrus structure"],
             "walrus_token": [r"walrus token", r"wal token", r"wal coin", r"walrus economics", r"walrus tokenomics"],
             "walrus_sui": [r"walrus sui", r"walrus on sui", r"walrus sui integration"],
-            "walrus_validators": [r"walrus validator", r"walrus validators", r"how many validator", r"walrus network", r"walrus nodes", r"validator.*walrus", r"how many.*walrus", r"validator", r"validators"]
+            "walrus_validators": [r"walrus validator", r"walrus validators", r"how many validator", r"walrus network", r"walrus nodes", r"validator.*walrus", r"how many.*walrus", r"validator", r"validators", r"how many.*validator", r"walrus.*validator", r"validator.*exist", r"validator.*count"]
         }
 
         for info_key, pattern_list in walrus_patterns.items():
@@ -265,38 +370,79 @@ class SearchService:
     def search_sui_docs(self, query: str) -> str:
         self.logger.info(f"Searching for: {query}")
 
-        # Check local info first for fastest response
+        # Check if query is blockchain-related, if not, reject it
+        if not self._is_blockchain_related(query):
+            raise SearchError("I only help with Sui blockchain, Move language, and Walrus topics. Please ask about blockchain, crypto, Sui, Move, or Walrus.")
+
+        # STEP 1: Try to get real-time data first (price, network stats) for specific queries
+        if re.search(r"price|worth|value|market\s*cap|how much", query, re.IGNORECASE):
+            if self._is_walrus_query(query):
+                price_info = self._get_walrus_price()
+                if price_info:
+                    self.logger.info("Found Walrus price info - returning immediately")
+                    return price_info
+
+        # STEP 2: Try to get real-time network stats for validator/network queries
+        if re.search(r"validator|validators|network|nodes|stake|tps|stats|how many|count|exist", query, re.IGNORECASE):
+            # Try Walrus network stats first
+            if self._is_walrus_query(query):
+                network_stats = self._get_walrus_network_stats()
+                if network_stats:
+                    self.logger.info("Found Walrus network stats - returning immediately")
+                    return network_stats
+            
+            # Try Sui network stats
+            if re.search(r"sui.*validator|sui.*validators|sui.*network|sui.*nodes|sui.*stake|sui.*tps", query, re.IGNORECASE):
+                sui_stats = self._get_sui_network_stats()
+                if sui_stats:
+                    self.logger.info("Found Sui network stats - returning immediately")
+                    return sui_stats
+
+        # STEP 3: Check local info for general queries (after real-time data)
         content = self._check_local_info(query)
         if content:
+            self.logger.info("Found local information - returning immediately")
             return content
 
-        # If Walrus query, try Walrus-specific search
+        # STEP 4: Try Walrus-specific external search (if Walrus query)
         if self._is_walrus_query(query):
             walrus_content = self._search_walrus(query)
             if walrus_content:
+                self.logger.info("Found Walrus-specific content - returning")
                 return walrus_content
-            
-            # If no content found but it's a Walrus query, try to get network stats
-            if re.search(r"validator|validators|network|nodes|stake|tps|stats", query, re.IGNORECASE):
-                network_stats = self._get_walrus_network_stats()
-                if network_stats:
-                    return network_stats
 
-        # Fallback to general search
+        # STEP 5: Try Tavily with site-specific search first (exhaust our configured sources)
+        content = self._search_tavily_site_specific(query)
+        if content:
+            self.logger.info("Found content via Tavily site-specific search - returning")
+            return content
+
+        # STEP 6: Try DuckDuckGo with site-specific search (exhaust our configured sources)
+        content = self._search_duckduckgo_site_specific(query)
+        if content:
+            self.logger.info("Found content via DuckDuckGo site-specific search - returning")
+            return content
+
+        # STEP 7: Try Tavily with general internet search (broader but still blockchain-focused)
         content = self._search_tavily(query)
+        if content:
+            self.logger.info("Found content via Tavily general search - returning")
+            return content
 
-        if not content:
-            content = self._search_duckduckgo(query)
-        
-        # Add Sui network stats for Sui validator/network queries
-        if re.search(r"sui.*validator|sui.*validators|sui.*network|sui.*nodes|sui.*stake|sui.*tps", query, re.IGNORECASE):
-            sui_stats = self._get_sui_network_stats()
-            if sui_stats:
-                content = (content + "\n\n" if content else "") + sui_stats
+        # STEP 8: Try DuckDuckGo with general internet search (last resort before OpenAI)
+        content = self._search_duckduckgo(query)
+        if content:
+            self.logger.info("Found content via DuckDuckGo general search - returning")
+            return content
 
-        if not content:
-            self.logger.warning("No search results found")
-            raise SearchError("Could not find relevant information in Sui documentation")
+        # STEP 9: If still no content, try to get any available network stats as fallback
+        if self._is_walrus_query(query):
+            fallback_stats = self._get_walrus_network_stats()
+            if fallback_stats:
+                self.logger.info("Using Walrus network stats as fallback")
+                return fallback_stats
 
-        return content
+        # STEP 10: Final fallback - let AI service handle with its knowledge
+        self.logger.info("All search methods exhausted - allowing AI service to handle with its knowledge")
+        return "No specific search results found, but I can provide information based on my training data about blockchain, Sui, Move, and Walrus topics."
 

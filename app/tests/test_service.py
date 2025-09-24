@@ -69,7 +69,8 @@ class TestSearchService:
         assert "Sui is a Layer 1 blockchain" in result
         assert "Move programming language" in result
         call_args = mock_post.call_args[1]['json']
-        assert "site:docs.sui.io OR site:move-language.github.io OR site:move-book.com" in call_args['query']
+        # "Sui blockchain" is detected as blockchain-related, so it uses general blockchain search
+        assert "blockchain cryptocurrency crypto sui move walrus" in call_args['query']
 
     @patch('requests.post')
     def test_tavily_search_prioritizes_walrus(self, mock_post):
@@ -82,7 +83,8 @@ class TestSearchService:
 
         assert "Walrus DA on Sui" in result
         call_args = mock_post.call_args[1]['json']
-        assert "site:walruslabs.xyz" in call_args['query']
+        # "What is Walrus on Sui?" is detected as blockchain-related, so it uses general blockchain search
+        assert "blockchain cryptocurrency crypto sui move walrus" in call_args['query']
 
     @patch('requests.get')
     def test_duckduckgo_search_fallback(self, mock_get):
@@ -102,7 +104,8 @@ class TestSearchService:
         assert "Sui blockchain platform" in result
         assert "Move smart contracts" in result
         call_args = mock_get.call_args[1]['params']
-        assert "site:docs.sui.io OR site:move-language.github.io" in call_args['q']
+        # "Move smart contracts" is detected as blockchain-related, so it uses general blockchain search
+        assert "blockchain sui move walrus cryptocurrency crypto" in call_args['q']
 
     @patch('requests.get')
     def test_duckduckgo_prioritizes_walrus(self, mock_get):
@@ -116,7 +119,8 @@ class TestSearchService:
         result = self.service._search_duckduckgo("Walrus price on Sui")
         assert "Walrus is a data availability" in result
         call_args = mock_get.call_args[1]['params']
-        assert "site:walruslabs.xyz" in call_args['q']
+        # "Walrus price on Sui" is detected as blockchain-related, so it uses general blockchain search
+        assert "blockchain sui move walrus cryptocurrency crypto" in call_args['q']
 
     @patch('app.services.search_service.SearchService._search_tavily')
     @patch('app.services.search_service.SearchService._search_duckduckgo')
@@ -141,16 +145,20 @@ class TestSearchService:
         with pytest.raises(SearchError) as exc:
             self.service.search_sui_docs("unknown topic")
 
+        # "unknown topic" is detected as non-blockchain, so it gets rejected with blockchain restriction message
+        assert "I only help with Sui blockchain" in str(exc.value.message)
 
-        assert "Could not find relevant information" in str(exc.value.message)
-
+    @patch('app.services.search_service.SearchService._check_local_info', return_value=None)
+    @patch('app.services.search_service.SearchService._search_walrus', return_value=None)
+    @patch('app.services.search_service.SearchService._search_tavily_site_specific', return_value=None)
+    @patch('app.services.search_service.SearchService._search_duckduckgo_site_specific', return_value=None)
     @patch('app.services.search_service.SearchService._search_tavily')
     @patch('app.services.search_service.SearchService._search_duckduckgo')
-    def test_search_walrus_first_strategy(self, mock_ddg, mock_tavily):
+    def test_search_walrus_first_strategy(self, mock_ddg, mock_tavily, mock_ddg_site, mock_tavily_site, mock_walrus, mock_local):
         # Test with a query that doesn't match local patterns to trigger external search
         mock_tavily.return_value = "Walrus documentation"
         mock_ddg.return_value = None
-        result = self.service.search_sui_docs("Walrus API endpoints and integration methods")
+        result = self.service.search_sui_docs("How to integrate Walrus with custom applications")
         assert result.startswith("Walrus documentation")
 
     @patch('requests.get')
@@ -177,27 +185,24 @@ class TestSearchService:
 
     @patch('requests.get')
     def test_walrus_price_included_when_asking_price(self, mock_get):
-        with patch('app.services.search_service.SearchService._search_tavily', return_value=None), \
-             patch('app.services.search_service.SearchService._search_duckduckgo', return_value=None):
+        search_resp = Mock()
+        search_resp.raise_for_status.return_value = None
+        search_resp.json.return_value = {"coins": [{"id": "walrus", "name": "Walrus"}]}
+        price_resp = Mock()
+        price_resp.raise_for_status.return_value = None
+        price_resp.json.return_value = {"walrus": {"usd": 0.99}}
 
-            search_resp = Mock()
-            search_resp.raise_for_status.return_value = None
-            search_resp.json.return_value = {"coins": [{"id": "walrus", "name": "Walrus"}]}
-            price_resp = Mock()
-            price_resp.raise_for_status.return_value = None
-            price_resp.json.return_value = {"walrus": {"usd": 0.99}}
+        def side_effect(url, params=None, timeout=5):
+            if "api.coingecko.com/api/v3/search" in url:
+                return search_resp
+            if "api.coingecko.com/api/v3/simple/price" in url:
+                return price_resp
+            raise AssertionError("Unexpected URL")
 
-            def side_effect(url, params=None, timeout=5):
-                if "api.coingecko.com/api/v3/search" in url:
-                    return search_resp
-                if "api.coingecko.com/api/v3/simple/price" in url:
-                    return price_resp
-                raise AssertionError("Unexpected URL")
+        mock_get.side_effect = side_effect
 
-            mock_get.side_effect = side_effect
-
-            result = self.service.search_sui_docs("What is the Walrus coin price?")
-            assert "$0.99" in result
+        result = self.service.search_sui_docs("What is the Walrus coin price?")
+        assert "$0.99" in result
 
     def test_local_walrus_info_prioritized(self):
         from app.services.search_service import SearchService
@@ -213,7 +218,11 @@ class TestSearchService:
         service = SearchService()
 
         # Test that Walrus queries use expanded sources
-        with patch('app.services.search_service.SearchService._search_tavily') as mock_tavily:
+        with patch('app.services.search_service.SearchService._check_local_info', return_value=None), \
+             patch('app.services.search_service.SearchService._search_walrus', return_value=None), \
+             patch('app.services.search_service.SearchService._search_tavily_site_specific', return_value=None), \
+             patch('app.services.search_service.SearchService._search_duckduckgo_site_specific', return_value=None), \
+             patch('app.services.search_service.SearchService._search_tavily') as mock_tavily:
             mock_tavily.return_value = "Walrus documentation"
             service.search_sui_docs("Walrus API documentation and SDK references")
             
@@ -265,6 +274,131 @@ class TestSearchService:
         result = service.search_sui_docs("How many validators on Walrus?")
         assert "validator" in result.lower()
         assert "walrus" in result.lower()
+
+    def test_blockchain_related_query_detection(self):
+        from app.services.search_service import SearchService
+        service = SearchService()
+
+        # Test blockchain-related queries
+        assert service._is_blockchain_related("What is blockchain?") == True
+        assert service._is_blockchain_related("How does crypto work?") == True
+        assert service._is_blockchain_related("Sui blockchain features") == True
+        assert service._is_blockchain_related("Move smart contracts") == True
+        assert service._is_blockchain_related("Walrus data availability") == True
+        assert service._is_blockchain_related("NFT marketplace") == True
+        assert service._is_blockchain_related("DeFi protocols") == True
+
+        # Test non-blockchain queries
+        assert service._is_blockchain_related("What is the weather?") == False
+        assert service._is_blockchain_related("How to cook pasta?") == False
+        assert service._is_blockchain_related("Python programming") == False
+
+    def test_general_internet_search_for_blockchain_topics(self):
+        from app.services.search_service import SearchService
+        service = SearchService()
+
+        # Test that blockchain queries use general internet search
+        with patch('app.services.search_service.SearchService._search_tavily') as mock_tavily:
+            mock_tavily.return_value = "Blockchain technology information"
+            service.search_sui_docs("What is blockchain technology?")
+            
+            # Check that _search_tavily was called with general search
+            assert mock_tavily.called
+            call_args = mock_tavily.call_args[0][0]  # First positional argument (query)
+            assert "blockchain" in call_args.lower()
+
+    def test_non_blockchain_query_rejection(self):
+        from app.services.search_service import SearchService
+        service = SearchService()
+
+        # Test that non-blockchain queries are rejected
+        with pytest.raises(Exception) as exc_info:
+            service.search_sui_docs("What is the weather today?")
+        
+        assert "I only help with Sui blockchain" in str(exc_info.value)
+
+    def test_exhaustive_search_strategy(self):
+        from app.services.search_service import SearchService
+        service = SearchService()
+
+        # Test that the search strategy exhausts all local sources first
+        with patch('app.services.search_service.SearchService._check_local_info', return_value=None) as mock_local, \
+             patch('app.services.search_service.SearchService._get_walrus_network_stats', return_value=None) as mock_walrus_stats, \
+             patch('app.services.search_service.SearchService._get_walrus_price', return_value=None) as mock_price, \
+             patch('app.services.search_service.SearchService._search_walrus', return_value=None) as mock_walrus_search, \
+             patch('app.services.search_service.SearchService._search_tavily', return_value=None) as mock_tavily, \
+             patch('app.services.search_service.SearchService._search_duckduckgo', return_value="DuckDuckGo result") as mock_ddg:
+
+            result = service.search_sui_docs("What is blockchain technology?")
+            
+            # Verify all search methods were called in order
+            assert mock_local.called
+            assert mock_tavily.called
+            assert mock_ddg.called
+            assert "DuckDuckGo result" in result
+
+    def test_local_info_priority(self):
+        from app.services.search_service import SearchService
+        service = SearchService()
+
+        # Test that local info is returned immediately without calling external APIs
+        with patch('app.services.search_service.SearchService._check_local_info', return_value="Local info result") as mock_local, \
+             patch('app.services.search_service.SearchService._search_tavily') as mock_tavily, \
+             patch('app.services.search_service.SearchService._search_duckduckgo') as mock_ddg:
+
+            result = service.search_sui_docs("What is Walrus?")
+            
+            # Verify local info was returned and external APIs were not called
+            assert result == "Local info result"
+            assert not mock_tavily.called
+            assert not mock_ddg.called
+
+    def test_site_specific_search_priority(self):
+        from app.services.search_service import SearchService
+        service = SearchService()
+
+        # Test that site-specific search is tried before general search
+        with patch('app.services.search_service.SearchService._check_local_info', return_value=None) as mock_local, \
+             patch('app.services.search_service.SearchService._get_walrus_network_stats', return_value=None) as mock_walrus_stats, \
+             patch('app.services.search_service.SearchService._get_walrus_price', return_value=None) as mock_price, \
+             patch('app.services.search_service.SearchService._search_walrus', return_value=None) as mock_walrus_search, \
+             patch('app.services.search_service.SearchService._search_tavily_site_specific', return_value="Site-specific result") as mock_tavily_site, \
+             patch('app.services.search_service.SearchService._search_duckduckgo_site_specific') as mock_ddg_site, \
+             patch('app.services.search_service.SearchService._search_tavily') as mock_tavily_general, \
+             patch('app.services.search_service.SearchService._search_duckduckgo') as mock_ddg_general:
+
+            result = service.search_sui_docs("What is blockchain technology?")
+            
+            # Verify site-specific search was called and general search was not
+            assert mock_tavily_site.called
+            assert not mock_tavily_general.called
+            assert not mock_ddg_general.called
+            assert "Site-specific result" in result
+
+    def test_exhaustive_search_with_ai_fallback(self):
+        from app.services.search_service import SearchService
+        service = SearchService()
+
+        # Test that AI service fallback is used when all search methods fail
+        with patch('app.services.search_service.SearchService._check_local_info', return_value=None) as mock_local, \
+             patch('app.services.search_service.SearchService._get_walrus_network_stats', return_value=None) as mock_walrus_stats, \
+             patch('app.services.search_service.SearchService._get_walrus_price', return_value=None) as mock_price, \
+             patch('app.services.search_service.SearchService._search_walrus', return_value=None) as mock_walrus_search, \
+             patch('app.services.search_service.SearchService._search_tavily_site_specific', return_value=None) as mock_tavily_site, \
+             patch('app.services.search_service.SearchService._search_duckduckgo_site_specific', return_value=None) as mock_ddg_site, \
+             patch('app.services.search_service.SearchService._search_tavily', return_value=None) as mock_tavily_general, \
+             patch('app.services.search_service.SearchService._search_duckduckgo', return_value=None) as mock_ddg_general:
+
+            result = service.search_sui_docs("What is blockchain technology?")
+            
+            # Verify all search methods were called and AI fallback was used
+            assert mock_local.called
+            assert mock_tavily_site.called
+            assert mock_ddg_site.called
+            assert mock_tavily_general.called
+            assert mock_ddg_general.called
+            assert "No specific search results found" in result
+            assert "training data" in result
 
 class TestAIService:
 
