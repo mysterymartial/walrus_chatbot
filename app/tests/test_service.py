@@ -298,7 +298,14 @@ class TestSearchService:
         service = SearchService()
 
         # Test that blockchain queries use general internet search
-        with patch('app.services.search_service.SearchService._search_tavily') as mock_tavily:
+        with patch('app.services.search_service.SearchService._check_local_info', return_value=None) as mock_local, \
+             patch('app.services.search_service.SearchService._get_walrus_network_stats', return_value=None) as mock_walrus_stats, \
+             patch('app.services.search_service.SearchService._get_walrus_price', return_value=None) as mock_price, \
+             patch('app.services.search_service.SearchService._search_walrus', return_value=None) as mock_walrus_search, \
+             patch('app.services.search_service.SearchService._search_authoritative_sources', return_value=None) as mock_auth, \
+             patch('app.services.search_service.SearchService._search_tavily_site_specific', return_value=None) as mock_tavily_site, \
+             patch('app.services.search_service.SearchService._search_duckduckgo_site_specific', return_value=None) as mock_ddg_site, \
+             patch('app.services.search_service.SearchService._search_tavily') as mock_tavily:
             mock_tavily.return_value = "Blockchain technology information"
             service.search_sui_docs("What is blockchain technology?")
             

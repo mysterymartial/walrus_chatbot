@@ -74,6 +74,37 @@ class SearchService:
             self.logger.error(f"Tavily site-specific search failed: {e}")
             return None
 
+    def _search_authoritative_sources(self, query: str) -> Optional[str]:
+        """Search the most authoritative sources first: Sui docs, Walrus docs, Scans, Labs"""
+        try:
+            search_url = "https://api.duckduckgo.com/"
+            
+            # Prioritize the most authoritative sources
+            authoritative_sites = (
+                "site:docs.sui.io OR site:docs.walruslabs.xyz OR site:walrusscan.com OR site:suiscan.xyz OR "
+                "site:walruslabs.xyz OR site:github.com/mystenlabs/walrus OR site:github.com/walruslabs OR "
+                "site:blog.walruslabs.xyz OR site:medium.com/@walruslabs OR site:mirror.xyz/walruslabs"
+            )
+            params = {
+                'q': f"{query} {authoritative_sites}",
+                'format': 'json',
+                'no_html': '1',
+                'skip_disambig': '1'
+            }
+
+            response = requests.get(search_url, params=params, timeout=5)
+            data = response.json()
+
+            content = ""
+            for result in data.get("results", []):
+                content += f"{result.get('title', '')}\n{result.get('abstract', '')}\n\n"
+
+            return content.strip() if content else None
+
+        except Exception as e:
+            self.logger.error(f"Authoritative sources search failed: {e}")
+            return None
+
     def _search_duckduckgo_site_specific(self, query: str) -> Optional[str]:
         """Search using our configured authoritative sources first"""
         try:
@@ -337,7 +368,9 @@ class SearchService:
             "walrus_architecture": [r"walrus architecture", r"how walrus works", r"walrus design", r"walrus structure"],
             "walrus_token": [r"walrus token", r"wal token", r"wal coin", r"walrus economics", r"walrus tokenomics"],
             "walrus_sui": [r"walrus sui", r"walrus on sui", r"walrus sui integration"],
-            "walrus_validators": [r"walrus validator", r"walrus validators", r"how many validator", r"walrus network", r"walrus nodes", r"validator.*walrus", r"how many.*walrus", r"validator", r"validators", r"how many.*validator", r"walrus.*validator", r"validator.*exist", r"validator.*count"]
+            "walrus_validators": [r"walrus validator", r"walrus validators", r"how many validator", r"walrus network", r"walrus nodes", r"validator.*walrus", r"how many.*walrus", r"validator", r"validators", r"how many.*validator", r"walrus.*validator", r"validator.*exist", r"validator.*count"],
+            "walrus_epochs": [r"walrus epoch", r"walrus epochs", r"walrus epoch.*", r"epoch.*walrus", r"walrus.*epoch"],
+            "walrus_blob_ids": [r"walrus blob id", r"walrus blob ids", r"blob id", r"blob ids", r"walrus.*blob.*id", r"blob.*id.*walrus"]
         }
 
         for info_key, pattern_list in walrus_patterns.items():
@@ -351,12 +384,21 @@ class SearchService:
             "sui_token": [r"sui token", r"token economics", r"tokenomics", r"sui coin"],
             "sui_architecture": [r"architecture", r"how sui works", r"sui design", r"sui structure"],
             "move_language": [r"move language", r"programming language", r"smart contract language", r"move programming"],
-            "sui_objects": [r"sui objects", r"object model", r"object-centric"],
-            "sui_transactions": [r"transactions", r"tx", r"how transactions work"],
-            "sui_consensus": [r"consensus", r"narwhal", r"bullshark", r"proof of stake"],
+            "sui_objects": [r"sui objects", r"object model", r"object-centric", r"sui object", r"sui.*object", r"object.*sui"],
+            "sui_transactions": [r"transactions", r"tx", r"how transactions work", r"sui transaction", r"sui.*transaction", r"transaction.*sui"],
+            "sui_consensus": [r"consensus", r"narwhal", r"bullshark", r"proof of stake", r"sui consensus", r"sui.*consensus", r"consensus.*sui"],
             "sui_storage": [r"storage", r"data storage", r"state storage"],
             "sui_smart_contracts": [r"smart contracts", r"contracts", r"dapps", r"applications"],
-            "sui_validators": [r"sui validator", r"sui validators", r"how many sui validator", r"sui network", r"sui nodes"]
+            "sui_validators": [r"sui validator", r"sui validators", r"how many sui validator", r"sui network", r"sui nodes"],
+            "sui_epochs": [r"sui epoch", r"sui epochs", r"epoch.*sui", r"sui.*epoch", r"epoch"],
+            "move_smart_contracts": [r"move smart contract", r"move smart contracts", r"move contract", r"move contracts", r"smart contract", r"smart contracts", r"move.*contract", r"contract.*move"],
+            "what_is_blockchain": [r"what is blockchain", r"blockchain", r"about blockchain", r"blockchain overview", r"define blockchain", r"blockchain definition", r"what.*blockchain"],
+            "types_of_blockchain": [r"types of blockchain", r"blockchain types", r"kinds of blockchain", r"blockchain categories", r"different blockchain", r"blockchain classification"],
+            "distributed_ledger": [r"distributed ledger", r"distributed database", r"ledger technology", r"distributed system", r"what.*distributed.*ledger"],
+            "proof_of_work": [r"proof of work", r"pow", r"mining", r"miners", r"what.*proof.*work", r"how.*mining.*work"],
+            "sui_blockchain_type": [r"what type.*sui", r"sui.*type", r"what.*blockchain.*sui", r"sui.*blockchain.*type", r"type.*sui.*blockchain"],
+            "blockchain_consensus": [r"consensus mechanism", r"consensus algorithm", r"blockchain consensus", r"how.*consensus.*work", r"consensus.*blockchain"],
+            "blockchain_security": [r"blockchain security", r"crypto security", r"blockchain.*secure", r"security.*blockchain", r"blockchain.*attack"]
         }
 
         for info_key, pattern_list in patterns.items():
@@ -411,38 +453,44 @@ class SearchService:
                 self.logger.info("Found Walrus-specific content - returning")
                 return walrus_content
 
-        # STEP 5: Try Tavily with site-specific search first (exhaust our configured sources)
+        # STEP 5: Try authoritative sources first (Sui docs, Walrus docs, Scans, Labs)
+        content = self._search_authoritative_sources(query)
+        if content:
+            self.logger.info("Found content via authoritative sources - returning")
+            return content
+
+        # STEP 6: Try Tavily with site-specific search (exhaust our configured sources)
         content = self._search_tavily_site_specific(query)
         if content:
             self.logger.info("Found content via Tavily site-specific search - returning")
             return content
 
-        # STEP 6: Try DuckDuckGo with site-specific search (exhaust our configured sources)
+        # STEP 7: Try DuckDuckGo with site-specific search (exhaust our configured sources)
         content = self._search_duckduckgo_site_specific(query)
         if content:
             self.logger.info("Found content via DuckDuckGo site-specific search - returning")
             return content
 
-        # STEP 7: Try Tavily with general internet search (broader but still blockchain-focused)
+        # STEP 8: Try Tavily with general internet search (broader but still blockchain-focused)
         content = self._search_tavily(query)
         if content:
             self.logger.info("Found content via Tavily general search - returning")
             return content
 
-        # STEP 8: Try DuckDuckGo with general internet search (last resort before OpenAI)
+        # STEP 9: Try DuckDuckGo with general internet search (last resort before OpenAI)
         content = self._search_duckduckgo(query)
         if content:
             self.logger.info("Found content via DuckDuckGo general search - returning")
             return content
 
-        # STEP 9: If still no content, try to get any available network stats as fallback
+        # STEP 10: If still no content, try to get any available network stats as fallback
         if self._is_walrus_query(query):
             fallback_stats = self._get_walrus_network_stats()
             if fallback_stats:
                 self.logger.info("Using Walrus network stats as fallback")
                 return fallback_stats
 
-        # STEP 10: Final fallback - let AI service handle with its knowledge
+        # STEP 11: Final fallback - let AI service handle with its knowledge
         self.logger.info("All search methods exhausted - allowing AI service to handle with its knowledge")
         return "No specific search results found, but I can provide information based on my training data about blockchain, Sui, Move, and Walrus topics."
 

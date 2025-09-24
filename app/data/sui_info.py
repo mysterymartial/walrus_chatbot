@@ -216,4 +216,407 @@ Smart contracts in Sui are written in the Move programming language and have sev
 
 Sui's smart contract model combines the safety of Move with the scalability benefits of Sui's object-centric approach.
 """,
+
+    "sui_epochs": """
+Sui Epochs are fundamental time periods that govern the Sui blockchain's operation:
+
+What are Sui Epochs:
+- Epochs are fixed time periods (typically 24 hours) that define network cycles
+- Each epoch has a specific set of active validators
+- Epochs ensure network decentralization through validator rotation
+- Epoch boundaries trigger validator set updates and reward distributions
+
+Sui Epoch Functions:
+- Validator Set Management: Determines which validators are active in each epoch
+- Reward Distribution: Validators receive rewards at epoch boundaries
+- Network Security: Regular validator rotation prevents centralization
+- Consensus Updates: Network parameters can be updated at epoch boundaries
+- Transaction Processing: Epochs track transaction processing and finality
+
+Sui Epoch Lifecycle:
+- Epoch Start: New validator set becomes active
+- Epoch Progress: Validators process transactions and maintain consensus
+- Epoch End: Rewards distributed, validator set updated
+- Epoch Transition: Smooth handover to next epoch's validators
+
+Sui Epoch Information:
+- Current epoch number and remaining time
+- Active validators for current epoch
+- Epoch rewards and stake distribution
+- Historical epoch data and statistics
+- Epoch-based network performance metrics
+
+Real-time Sui epoch information is available through Sui Scan APIs, showing current epoch, remaining time, and validator details.
+""",
+
+    "sui_objects": """
+Sui Objects are the fundamental data structures in the Sui blockchain:
+
+What are Sui Objects:
+- Objects are the primary data containers in Sui's object-centric model
+- Each object has a unique ID and belongs to an owner
+- Objects can be shared, owned, or immutable
+- Objects contain data and can have associated functions
+
+Object Types:
+- Owned Objects: Belong to a specific address and can be transferred
+- Shared Objects: Can be accessed by multiple transactions simultaneously
+- Immutable Objects: Cannot be modified after creation
+- Wrapped Objects: Objects that contain other objects
+
+Object Properties:
+- Object ID: Unique identifier for each object
+- Owner: Address that owns the object (or shared/immutable)
+- Version: Tracks object modifications and updates
+- Digest: Cryptographic hash of object content
+- Type: Defines the object's structure and capabilities
+
+Object Operations:
+- Create: Generate new objects with initial data
+- Transfer: Move objects between addresses
+- Update: Modify object data and properties
+- Delete: Remove objects from the network
+- Share: Make objects accessible to multiple users
+
+Object Lifecycle:
+- Creation: Objects are created through transactions
+- Modification: Objects can be updated by their owners
+- Transfer: Objects can be moved between addresses
+- Sharing: Objects can be made accessible to multiple users
+- Deletion: Objects can be removed when no longer needed
+""",
+
+    "move_smart_contracts": """
+Move Smart Contracts are programs that run on the Sui blockchain:
+
+What are Move Smart Contracts:
+- Move is a programming language designed for blockchain applications
+- Smart contracts define the logic and behavior of blockchain applications
+- Move contracts are secure, efficient, and easy to audit
+- Contracts can create, modify, and transfer digital assets
+
+Move Language Features:
+- Resource-oriented: Focuses on ownership and transfer of resources
+- Linear types: Ensures resources are used exactly once
+- Module system: Organizes code into reusable components
+- Type safety: Prevents common programming errors
+- Formal verification: Supports mathematical proof of correctness
+
+Smart Contract Components:
+- Modules: Contain function definitions and data structures
+- Functions: Define the behavior and operations of the contract
+- Structs: Define data structures and resource types
+- Constants: Define immutable values used throughout the contract
+- Events: Emit information about contract execution
+
+Contract Development:
+- Writing: Create Move modules with functions and structs
+- Testing: Verify contract behavior with unit tests
+- Deployment: Publish contracts to the Sui network
+- Interaction: Call contract functions through transactions
+- Upgrading: Modify contracts while maintaining compatibility
+
+Move Security Features:
+- Resource safety: Prevents double-spending and resource leaks
+- Type safety: Catches errors at compile time
+- Access control: Restricts function access to authorized users
+- Formal verification: Supports mathematical proof of correctness
+- Auditability: Code is transparent and verifiable
+""",
+
+    "what_is_blockchain": """
+Blockchain is a distributed ledger technology that maintains a continuously growing list of records (blocks) that are linked and secured using cryptography:
+
+What is Blockchain:
+- A distributed ledger that records transactions across multiple computers
+- Each block contains a cryptographic hash of the previous block
+- Creates an immutable chain of data that cannot be altered retroactively
+- Operates without a central authority, making it decentralized
+- Uses consensus mechanisms to validate and add new blocks
+
+Key Characteristics:
+- Decentralization: No single point of control or failure
+- Immutability: Data cannot be changed once recorded
+- Transparency: All transactions are visible to network participants
+- Security: Cryptographic hashing ensures data integrity
+- Consensus: Network participants agree on the state of the ledger
+
+Blockchain Components:
+- Blocks: Containers that hold transaction data
+- Hash: Cryptographic fingerprint of block data
+- Previous Hash: Links blocks together in a chain
+- Timestamp: When the block was created
+- Nonce: Number used in mining process
+- Merkle Tree: Efficient way to verify transaction integrity
+
+Use Cases:
+- Cryptocurrencies: Digital currencies like Bitcoin, Ethereum
+- Smart Contracts: Self-executing contracts with predefined rules
+- Supply Chain: Track products from origin to consumer
+- Identity Management: Secure digital identity systems
+- Voting Systems: Transparent and tamper-proof voting
+- Healthcare: Secure patient data management
+""",
+
+    "types_of_blockchain": """
+There are several types of blockchain networks, each with different characteristics and use cases:
+
+Public Blockchains:
+- Open to anyone: Anyone can join, read, and write data
+- Decentralized: No single entity controls the network
+- Examples: Bitcoin, Ethereum, Sui
+- Benefits: Transparency, censorship resistance, global access
+- Drawbacks: Lower transaction speeds, higher energy consumption
+
+Private Blockchains:
+- Restricted access: Only authorized participants can join
+- Centralized control: Single organization manages the network
+- Examples: Hyperledger Fabric, R3 Corda
+- Benefits: Higher performance, privacy, regulatory compliance
+- Drawbacks: Less decentralized, requires trust in central authority
+
+Consortium Blockchains:
+- Semi-decentralized: Controlled by a group of organizations
+- Permissioned: Only pre-approved entities can participate
+- Examples: Banking consortiums, supply chain networks
+- Benefits: Balance of decentralization and control
+- Drawbacks: Limited participation, potential for collusion
+
+Hybrid Blockchains:
+- Combination: Mix of public and private elements
+- Flexible: Can switch between public and private modes
+- Examples: Some enterprise solutions
+- Benefits: Best of both worlds, customizable
+- Drawbacks: Complexity, potential security issues
+
+Blockchain Classifications:
+- Permissionless vs Permissioned: Who can participate
+- Public vs Private: Who can view the data
+- Centralized vs Decentralized: Who controls the network
+- Open vs Closed: Who can develop applications
+""",
+
+    "distributed_ledger": """
+A Distributed Ledger is a database that is consensually shared and synchronized across multiple sites, institutions, or geographies:
+
+What is a Distributed Ledger:
+- A database spread across multiple locations or participants
+- All participants have access to the same data
+- Changes are reflected in all copies in real-time
+- No central administrator or centralized data storage
+- Uses consensus mechanisms to maintain data consistency
+
+Key Features:
+- Decentralization: No single point of control
+- Immutability: Data cannot be altered once recorded
+- Transparency: All participants can see the data
+- Security: Cryptographic protection of data
+- Consensus: Agreement on data validity across participants
+
+Types of Distributed Ledgers:
+- Blockchain: Data stored in blocks linked by cryptographic hashes
+- Directed Acyclic Graph (DAG): Data stored in a graph structure
+- Hashgraph: Uses virtual voting for consensus
+- Holochain: Agent-centric distributed ledger
+
+Benefits:
+- Reduced costs: Eliminates intermediaries and middlemen
+- Increased speed: Direct peer-to-peer transactions
+- Enhanced security: Cryptographic protection and consensus
+- Improved transparency: All participants see the same data
+- Greater resilience: No single point of failure
+
+Use Cases:
+- Financial services: Cross-border payments, trade finance
+- Supply chain: Product tracking and verification
+- Healthcare: Patient data sharing and management
+- Government: Public records and voting systems
+- Real estate: Property ownership and transfer records
+""",
+
+    "proof_of_work": """
+Proof of Work (PoW) is a consensus mechanism used in blockchain networks to validate transactions and create new blocks:
+
+What is Proof of Work:
+- A consensus algorithm that requires computational work to validate transactions
+- Miners compete to solve complex mathematical puzzles
+- The first miner to solve the puzzle gets to add the next block
+- Requires significant computational power and energy consumption
+- Provides security through economic incentives
+
+How Proof of Work Works:
+1. Transactions are collected into a block
+2. Miners compete to solve a cryptographic puzzle
+3. The puzzle requires finding a hash that meets certain criteria
+4. The first miner to find the solution broadcasts it to the network
+5. Other nodes verify the solution and add the block to the chain
+6. The successful miner receives a reward (block reward + transaction fees)
+
+Key Characteristics:
+- Energy Intensive: Requires significant computational power
+- Secure: Difficult to attack due to high energy costs
+- Decentralized: Anyone can participate in mining
+- Transparent: All mining activity is visible
+- Immutable: Changing past blocks requires redoing all work
+
+Advantages:
+- High security: Expensive to attack the network
+- Decentralized: No single point of control
+- Proven: Bitcoin has been secure for over a decade
+- Transparent: All mining activity is visible
+- Censorship resistant: Difficult to stop transactions
+
+Disadvantages:
+- High energy consumption: Significant environmental impact
+- Slow transactions: Limited throughput and high fees
+- Centralization risk: Mining pools can concentrate power
+- Wasteful: Most computational work is discarded
+- Scalability issues: Difficult to scale to high transaction volumes
+
+Examples:
+- Bitcoin: The first and most well-known PoW blockchain
+- Ethereum (before merge): Used PoW before switching to PoS
+- Litecoin: Uses a different hash function than Bitcoin
+- Dogecoin: Based on Litecoin's PoW implementation
+""",
+
+    "sui_blockchain_type": """
+Sui is a Layer 1 blockchain that uses a unique consensus mechanism and object-centric model:
+
+Sui Blockchain Type:
+- Layer 1 Blockchain: Base layer for applications and smart contracts
+- Public Blockchain: Open to anyone, permissionless
+- Smart Contract Platform: Supports decentralized applications
+- Object-Centric: Uses objects instead of accounts
+- High Performance: Designed for scalability and speed
+
+Sui's Consensus Mechanism:
+- Narwhal and Bullshark: Sui's consensus algorithm
+- Not Proof of Work: Uses a more efficient consensus
+- Not Proof of Stake: Uses a different approach
+- Byzantine Fault Tolerant: Can handle malicious nodes
+- High Throughput: Can process thousands of transactions per second
+
+Sui's Unique Features:
+- Object-Centric Model: Everything is an object with unique ID
+- Parallel Execution: Transactions on different objects can run simultaneously
+- Move Language: Custom programming language for smart contracts
+- Horizontal Scalability: Performance improves with more validators
+- Sub-second Finality: Transactions are finalized quickly
+
+Sui vs Other Blockchains:
+- vs Bitcoin: Much faster, supports smart contracts, uses objects
+- vs Ethereum: Faster, more scalable, object-centric model
+- vs Solana: Different consensus mechanism, object-centric
+- vs Avalanche: Different architecture, Move language
+
+Sui's Architecture:
+- Validators: Maintain the network and process transactions
+- Objects: The fundamental data structures
+- Transactions: Operations that modify objects
+- Consensus: Narwhal and Bullshark for agreement
+- Storage: Efficient object storage and retrieval
+
+Sui's Advantages:
+- High Performance: Fast transaction processing
+- Low Fees: Cost-effective transactions
+- Developer Friendly: Easy to build applications
+- Scalable: Can handle high transaction volumes
+- Secure: Built with security in mind
+""",
+
+    "blockchain_consensus": """
+Consensus mechanisms are the methods by which blockchain networks agree on the state of the ledger:
+
+What is Consensus:
+- A method for network participants to agree on the validity of transactions
+- Ensures all nodes have the same version of the blockchain
+- Prevents double-spending and maintains network security
+- Determines which transactions are valid and which blocks to add
+- Establishes trust in a decentralized system
+
+Types of Consensus Mechanisms:
+
+Proof of Work (PoW):
+- Miners compete to solve cryptographic puzzles
+- Requires significant computational power
+- Used by Bitcoin and Ethereum (before merge)
+- High security but energy intensive
+
+Proof of Stake (PoS):
+- Validators are chosen based on stake (coins held)
+- More energy efficient than PoW
+- Used by Ethereum 2.0, Cardano, Polkadot
+- Lower energy consumption but potential centralization
+
+Delegated Proof of Stake (DPoS):
+- Token holders vote for delegates to validate transactions
+- Faster than traditional PoS
+- Used by EOS, Tron, Steem
+- More centralized but higher performance
+
+Proof of Authority (PoA):
+- Validators are pre-approved and known entities
+- Used in private and consortium blockchains
+- High performance but less decentralized
+- Examples: VeChain, Binance Smart Chain
+
+Byzantine Fault Tolerance (BFT):
+- Can handle up to 1/3 malicious nodes
+- Used by Sui, Algorand, Cosmos
+- Fast finality and high security
+- Requires known validator set
+
+Consensus Requirements:
+- Agreement: All honest nodes agree on the same state
+- Validity: Only valid transactions are included
+- Termination: All honest nodes eventually decide
+- Integrity: No honest node can be forced to accept invalid data
+- Liveness: The system continues to make progress
+
+Consensus Trade-offs:
+- Security vs Performance: Higher security often means lower performance
+- Decentralization vs Efficiency: More decentralized systems are often slower
+- Energy vs Speed: PoW is secure but energy intensive
+- Trust vs Speed: More trusted systems can be faster
+""",
+
+    "blockchain_security": """
+Blockchain security refers to the measures and mechanisms that protect blockchain networks from attacks and ensure data integrity:
+
+Blockchain Security Features:
+- Cryptographic Hashing: SHA-256, Keccak-256 protect data integrity
+- Digital Signatures: Verify transaction authenticity and ownership
+- Consensus Mechanisms: Prevent malicious actors from controlling the network
+- Immutability: Data cannot be altered once recorded
+- Decentralization: No single point of failure
+
+Common Security Threats:
+- 51% Attacks: When a single entity controls majority of network power
+- Double Spending: Spending the same cryptocurrency twice
+- Sybil Attacks: Creating multiple fake identities
+- Eclipse Attacks: Isolating nodes from the network
+- Smart Contract Vulnerabilities: Bugs in smart contract code
+
+Security Measures:
+- Multi-signature: Require multiple signatures for transactions
+- Time Locks: Delay transaction execution
+- Hash Functions: Cryptographically secure hashing algorithms
+- Merkle Trees: Efficient verification of data integrity
+- Zero-Knowledge Proofs: Prove knowledge without revealing information
+
+Blockchain Security Best Practices:
+- Private Key Management: Secure storage of private keys
+- Multi-signature Wallets: Require multiple approvals
+- Regular Updates: Keep software and protocols updated
+- Code Audits: Review smart contract code for vulnerabilities
+- Network Monitoring: Monitor for suspicious activity
+
+Security in Different Blockchains:
+- Bitcoin: High security through PoW and decentralization
+- Ethereum: Smart contract security and network protection
+- Sui: Object-centric security and Move language safety
+- Private Blockchains: Access control and permission management
+- Consortium Blockchains: Multi-party security and governance
+"""
 }

@@ -153,5 +153,179 @@ Validator Requirements:
 - Maintain uptime and data availability
 
 Real-time network statistics including validator count, total stake, and network health metrics are available through Walrus Scan APIs at walrusscan.com.
+""",
+
+    "walrus_epochs": """
+Walrus Epochs are time-based periods that govern the network's operation and validator rotation:
+
+What are Walrus Epochs:
+- Epochs are fixed time periods (typically 24 hours) that define network cycles
+- Each epoch has a specific set of active validators
+- Epochs ensure network decentralization through validator rotation
+- Epoch boundaries trigger validator set updates and reward distributions
+
+Epoch Functions:
+- Validator Set Management: Determines which validators are active in each epoch
+- Reward Distribution: Validators receive rewards at epoch boundaries
+- Network Security: Regular validator rotation prevents centralization
+- Consensus Updates: Network parameters can be updated at epoch boundaries
+- Blob Storage: Epochs track blob storage periods and data availability
+
+Epoch Lifecycle:
+- Epoch Start: New validator set becomes active
+- Epoch Progress: Validators process blob storage requests
+- Epoch End: Rewards distributed, validator set updated
+- Epoch Transition: Smooth handover to next epoch's validators
+
+Epoch Information:
+- Current epoch number and remaining time
+- Active validators for current epoch
+- Epoch rewards and stake distribution
+- Historical epoch data and statistics
+- Epoch-based network performance metrics
+
+Real-time epoch information is available through Walrus Scan APIs, showing current epoch, remaining time, and validator details.
+""",
+
+    "walrus_blob_ids": """
+Walrus Blob IDs are unique identifiers for data blobs stored on the Walrus network:
+
+What are Blob IDs:
+- Blob IDs are cryptographic hashes that uniquely identify each blob
+- Generated using content-addressed storage (CAS) principles
+- Immutable identifiers that cannot be changed or duplicated
+- Used for blob retrieval, verification, and reference
+
+Blob ID Characteristics:
+- Unique: Each blob has a distinct, non-reversible identifier
+- Content-based: ID is derived from blob content using cryptographic hashing
+- Immutable: Blob ID remains constant as long as content is unchanged
+- Verifiable: Can be used to verify blob integrity and authenticity
+
+Blob ID Usage:
+- Storage: Blob IDs are used to store and organize blob data
+- Retrieval: Used to locate and fetch specific blobs from the network
+- Verification: Enable integrity checks and content validation
+- Reference: Allow other systems to reference specific blob data
+- Tracking: Monitor blob access, usage, and lifecycle
+
+Blob ID Format:
+- Typically 32-byte (256-bit) cryptographic hashes
+- Often represented as hexadecimal strings
+- Compatible with standard hash functions (SHA-256, Blake3)
+- Designed for efficient storage and transmission
+
+Blob ID Management:
+- Generated automatically when blobs are created
+- Stored in distributed index across validator nodes
+- Used for efficient blob discovery and retrieval
+- Enable content deduplication and optimization
+""",
+
+    "sui_epochs": """
+Sui Epochs are fundamental time periods that govern the Sui blockchain's operation:
+
+What are Sui Epochs:
+- Epochs are fixed time periods (typically 24 hours) that define network cycles
+- Each epoch has a specific set of active validators
+- Epochs ensure network decentralization through validator rotation
+- Epoch boundaries trigger validator set updates and reward distributions
+
+Sui Epoch Functions:
+- Validator Set Management: Determines which validators are active in each epoch
+- Reward Distribution: Validators receive rewards at epoch boundaries
+- Network Security: Regular validator rotation prevents centralization
+- Consensus Updates: Network parameters can be updated at epoch boundaries
+- Transaction Processing: Epochs track transaction processing and finality
+
+Sui Epoch Lifecycle:
+- Epoch Start: New validator set becomes active
+- Epoch Progress: Validators process transactions and maintain consensus
+- Epoch End: Rewards distributed, validator set updated
+- Epoch Transition: Smooth handover to next epoch's validators
+
+Sui Epoch Information:
+- Current epoch number and remaining time
+- Active validators for current epoch
+- Epoch rewards and stake distribution
+- Historical epoch data and statistics
+- Epoch-based network performance metrics
+
+Real-time Sui epoch information is available through Sui Scan APIs, showing current epoch, remaining time, and validator details.
+""",
+
+    "sui_objects": """
+Sui Objects are the fundamental data structures in the Sui blockchain:
+
+What are Sui Objects:
+- Objects are the primary data containers in Sui's object-centric model
+- Each object has a unique ID and belongs to an owner
+- Objects can be shared, owned, or immutable
+- Objects contain data and can have associated functions
+
+Object Types:
+- Owned Objects: Belong to a specific address and can be transferred
+- Shared Objects: Can be accessed by multiple transactions simultaneously
+- Immutable Objects: Cannot be modified after creation
+- Wrapped Objects: Objects that contain other objects
+
+Object Properties:
+- Object ID: Unique identifier for each object
+- Owner: Address that owns the object (or shared/immutable)
+- Version: Tracks object modifications and updates
+- Digest: Cryptographic hash of object content
+- Type: Defines the object's structure and capabilities
+
+Object Operations:
+- Create: Generate new objects with initial data
+- Transfer: Move objects between addresses
+- Update: Modify object data and properties
+- Delete: Remove objects from the network
+- Share: Make objects accessible to multiple users
+
+Object Lifecycle:
+- Creation: Objects are created through transactions
+- Modification: Objects can be updated by their owners
+- Transfer: Objects can be moved between addresses
+- Sharing: Objects can be made accessible to multiple users
+- Deletion: Objects can be removed when no longer needed
+""",
+
+    "move_smart_contracts": """
+Move Smart Contracts are programs that run on the Sui blockchain:
+
+What are Move Smart Contracts:
+- Move is a programming language designed for blockchain applications
+- Smart contracts define the logic and behavior of blockchain applications
+- Move contracts are secure, efficient, and easy to audit
+- Contracts can create, modify, and transfer digital assets
+
+Move Language Features:
+- Resource-oriented: Focuses on ownership and transfer of resources
+- Linear types: Ensures resources are used exactly once
+- Module system: Organizes code into reusable components
+- Type safety: Prevents common programming errors
+- Formal verification: Supports mathematical proof of correctness
+
+Smart Contract Components:
+- Modules: Contain function definitions and data structures
+- Functions: Define the behavior and operations of the contract
+- Structs: Define data structures and resource types
+- Constants: Define immutable values used throughout the contract
+- Events: Emit information about contract execution
+
+Contract Development:
+- Writing: Create Move modules with functions and structs
+- Testing: Verify contract behavior with unit tests
+- Deployment: Publish contracts to the Sui network
+- Interaction: Call contract functions through transactions
+- Upgrading: Modify contracts while maintaining compatibility
+
+Move Security Features:
+- Resource safety: Prevents double-spending and resource leaks
+- Type safety: Catches errors at compile time
+- Access control: Restricts function access to authorized users
+- Formal verification: Supports mathematical proof of correctness
+- Auditability: Code is transparent and verifiable
 """
 }

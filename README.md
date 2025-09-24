@@ -70,17 +70,18 @@ The chatbot now supports Walrus (on Sui) alongside Sui/Move with comprehensive f
 - **Price lookup**: When users ask about price/worth/market cap, the bot fetches current price via CoinGecko public API.
 - **Scan integration**: Includes Walrus Scan (`walrusscan.com`) and Sui Scan (`suiscan.xyz`) for real-time blockchain data.
 - **Scoped answers**: The assistant only answers Sui/Move/Walrus topics. Out-of-scope questions receive a polite message.
-- **Exhaustive search strategy**: 10-step search process that exhausts all configured sources before general internet search:
+- **Exhaustive search strategy**: 11-step search process that prioritizes authoritative sources before general internet search:
   1. **Local knowledge base** (fastest)
   2. **Real-time network stats** (Walrus/Sui Scan APIs)
   3. **Price information** (CoinGecko API)
   4. **Walrus-specific external search** (targeted sources)
-  5. **Tavily site-specific search** (our configured authoritative sources)
-  6. **DuckDuckGo site-specific search** (our configured authoritative sources)
-  7. **Tavily general search** (broader blockchain-focused)
-  8. **DuckDuckGo general search** (broad internet)
-  9. **Fallback network stats** (last resort data)
-  10. **AI service knowledge** (final fallback to AI training data)
+  5. **Authoritative sources** (Sui docs, Walrus docs, Scans, Labs)
+  6. **Tavily site-specific search** (our configured authoritative sources)
+  7. **DuckDuckGo site-specific search** (our configured authoritative sources)
+  8. **Tavily general search** (broader blockchain-focused)
+  9. **DuckDuckGo general search** (broad internet)
+  10. **Fallback network stats** (last resort data)
+  11. **AI service knowledge** (final fallback to AI training data)
 - **General internet search**: For blockchain topics, uses broader internet search while maintaining focus on Sui/Move/Walrus.
 - **Performance**: Optimized for speed with local-first approach and intelligent fallbacks.
 
@@ -107,12 +108,13 @@ The chatbot implements a sophisticated 7-step search strategy that prioritizes s
 2. **Network Stats** → Real-time validator counts, stake amounts
 3. **Price Data** → Current token prices from CoinGecko
 4. **Targeted Search** → Walrus-specific sources for focused results
-5. **Site-Specific Tavily** → Our configured authoritative sources first
-6. **Site-Specific DuckDuckGo** → Our configured authoritative sources first
-7. **General Tavily** → Broader blockchain-focused search
-8. **General DuckDuckGo** → Broad internet search for blockchain topics
-9. **Fallback Stats** → Network data as last resort
-10. **AI Knowledge** → Final fallback to AI training data
+5. **Authoritative Sources** → Sui docs, Walrus docs, Scans, Labs first
+6. **Site-Specific Tavily** → Our configured authoritative sources
+7. **Site-Specific DuckDuckGo** → Our configured authoritative sources
+8. **General Tavily** → Broader blockchain-focused search
+9. **General DuckDuckGo** → Broad internet search for blockchain topics
+10. **Fallback Stats** → Network data as last resort
+11. **AI Knowledge** → Final fallback to AI training data
 
 **⚡ Performance Benefits:**
 - **Sub-second responses** for local knowledge queries
