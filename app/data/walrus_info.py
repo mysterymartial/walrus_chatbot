@@ -334,5 +334,99 @@ Move Security Features:
 - Access control: Restricts function access to authorized users
 - Formal verification: Supports mathematical proof of correctness
 - Auditability: Code is transparent and verifiable
+""",
+
+    "walrus_storage_costs": """
+Walrus Storage Costs and Pricing:
+
+Storage Pricing Model:
+- Pay-per-use: Users pay for actual storage consumed
+- Epoch-based billing: Costs calculated per 14-day epoch
+- Blob size pricing: Costs scale with data size stored
+- Network demand pricing: Dynamic pricing based on network usage
+- Validator rewards: Storage fees distributed to validators
+
+Cost Factors:
+- Data Size: Larger blobs cost more to store
+- Duration: Longer storage periods increase costs
+- Network Congestion: Higher demand increases prices
+- Validator Count: More validators can reduce costs
+- Storage Redundancy: Multiple copies increase costs
+
+Pricing Structure:
+- Base Rate: Minimum cost per MB stored per epoch
+- Volume Discounts: Reduced rates for large storage amounts
+- Long-term Storage: Discounts for extended storage periods
+- Network Fees: Additional fees for data retrieval and access
+- Validator Fees: Portion of fees goes to network validators
+
+Economic Benefits:
+- Cost-effective: Cheaper than on-chain storage
+- Scalable: Costs scale with usage
+- Predictable: Transparent pricing model
+- Efficient: Optimized for Sui's gas model
+- Decentralized: No single point of pricing control
+
+Storage Cost Examples:
+- Small files (< 1MB): Minimal cost per epoch
+- Medium files (1-10MB): Moderate cost per epoch
+- Large files (> 10MB): Higher cost but still cost-effective
+- Bulk storage: Volume discounts available
+- Long-term storage: Reduced rates for extended periods
+
+Current Pricing Information:
+- Real-time pricing varies based on network conditions and demand
+- For current storage costs per epoch, check Walrus Scan APIs
+- Pricing is dynamic and updated based on network usage
+- Official pricing information is available through Walrus Labs documentation
+- Network statistics and current rates can be found at walrusscan.com
+""",
+
+    "walrus_economics": """
+Walrus Network Economics:
+
+Economic Model:
+- Token-based: Uses WAL tokens for all economic activities
+- Fee-based: Revenue generated through storage and access fees
+- Validator rewards: Validators earn tokens for providing services
+- Network incentives: Economic rewards encourage participation
+- Deflationary: Token burn mechanisms reduce supply over time
+
+Revenue Streams:
+- Storage Fees: Primary revenue from blob storage
+- Access Fees: Revenue from data retrieval and access
+- Network Fees: Transaction fees for network operations
+- Validator Fees: Portion of all fees goes to validators
+- Premium Services: Additional fees for enhanced features
+
+Cost Structure:
+- Storage Costs: Pay-per-use model for blob storage
+- Network Costs: Fees for data transmission and access
+- Validator Costs: Staking requirements and operational costs
+- Development Costs: Ongoing network development and maintenance
+- Security Costs: Network security and consensus mechanisms
+
+Economic Incentives:
+- Validator Rewards: Earn tokens for providing storage services
+- Staking Rewards: Earn rewards for staking WAL tokens
+- Network Participation: Incentives for running nodes and validators
+- Data Availability: Rewards for ensuring data accessibility
+- Network Growth: Incentives for expanding network capacity
+
+Token Utility:
+- Storage Payments: Required for storing data on Walrus
+- Validator Staking: Must stake tokens to become a validator
+- Governance: Vote on network proposals and changes
+- Network Fees: Pay for network operations and access
+- Economic Security: Token value secures the network
+
+Economic Benefits:
+- Cost Efficiency: Lower costs than traditional storage
+- Scalability: Economic model scales with network growth
+- Decentralization: No single entity controls pricing
+- Transparency: All economic activities are on-chain
+- Sustainability: Long-term economic viability
+
+Real-time economic data including token prices, network fees, and validator rewards is available through Walrus Scan APIs.
 """
 }

@@ -37,12 +37,14 @@ Rules:
 2. For general blockchain questions (what is blockchain, types of blockchain, consensus mechanisms, proof of work, etc.), use your training data to provide comprehensive answers
 3. For Sui, Move, and Walrus specific questions, prioritize the provided context but supplement with your knowledge when needed
 4. For installation, setup, and development questions, provide detailed step-by-step instructions
-5. If the question is not about blockchain, Sui, Move, or Walrus, say "I only help with blockchain, Sui, Move, and Walrus topics"
-6. Be concise but comprehensive
-7. Include code examples when relevant
-8. For typos and misspellings, provide the correct information (e.g., "blockhain" should be "blockchain")
-9. Always stay within the scope of blockchain, Sui, Move, and Walrus topics
-10. Provide practical, actionable answers for development and installation questions"""
+5. For current pricing and cost information (like Walrus storage costs per epoch), use your training data and mention that real-time pricing is available through Walrus Scan APIs
+6. If the question is not about blockchain, Sui, Move, or Walrus, say "I only help with blockchain, Sui, Move, and Walrus topics"
+7. Be concise but comprehensive
+8. Include code examples when relevant
+9. For typos and misspellings, provide the correct information (e.g., "blockhain" should be "blockchain")
+10. Always stay within the scope of blockchain, Sui, Move, and Walrus topics
+11. Provide practical, actionable answers for development and installation questions
+12. For current pricing data, direct users to official sources like Walrus Scan for real-time information"""
 
             messages = [
                 {"role": "system", "content": system_prompt},
