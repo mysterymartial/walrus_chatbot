@@ -125,15 +125,23 @@ class TestSearchService:
     @patch('app.services.search_service.SearchService._search_tavily')
     @patch('app.services.search_service.SearchService._search_duckduckgo')
     def test_search_fallback_strategy(self, mock_ddg, mock_tavily):
+        # Mock all the intermediate search steps to return None
+        with patch('app.services.search_service.SearchService._check_local_info', return_value=None), \
+             patch('app.services.search_service.SearchService._get_walrus_network_stats', return_value=None), \
+             patch('app.services.search_service.SearchService._get_walrus_price', return_value=None), \
+             patch('app.services.search_service.SearchService._search_walrus', return_value=None), \
+             patch('app.services.search_service.SearchService._search_authoritative_sources', return_value=None), \
+             patch('app.services.search_service.SearchService._search_tavily_site_specific', return_value=None), \
+             patch('app.services.search_service.SearchService._search_duckduckgo_site_specific', return_value=None):
 
-        mock_tavily.return_value = None
-        mock_ddg.return_value = "Sui documentation from DuckDuckGo"
+            mock_tavily.return_value = None
+            mock_ddg.return_value = "Sui documentation from DuckDuckGo"
 
-        result = self.service.search_sui_docs("Sui question")
+            result = self.service.search_sui_docs("Sui question")
 
-        assert result == "Sui documentation from DuckDuckGo"
-        mock_tavily.assert_called_once()
-        mock_ddg.assert_called_once()
+            assert result == "Sui documentation from DuckDuckGo"
+            mock_tavily.assert_called_once()
+            mock_ddg.assert_called_once()
 
     @patch('app.services.search_service.SearchService._search_tavily')
     @patch('app.services.search_service.SearchService._search_duckduckgo')
@@ -333,6 +341,9 @@ class TestSearchService:
              patch('app.services.search_service.SearchService._get_walrus_network_stats', return_value=None) as mock_walrus_stats, \
              patch('app.services.search_service.SearchService._get_walrus_price', return_value=None) as mock_price, \
              patch('app.services.search_service.SearchService._search_walrus', return_value=None) as mock_walrus_search, \
+             patch('app.services.search_service.SearchService._search_authoritative_sources', return_value=None) as mock_auth, \
+             patch('app.services.search_service.SearchService._search_tavily_site_specific', return_value=None) as mock_tavily_site, \
+             patch('app.services.search_service.SearchService._search_duckduckgo_site_specific', return_value=None) as mock_ddg_site, \
              patch('app.services.search_service.SearchService._search_tavily', return_value=None) as mock_tavily, \
              patch('app.services.search_service.SearchService._search_duckduckgo', return_value="DuckDuckGo result") as mock_ddg:
 
@@ -391,6 +402,7 @@ class TestSearchService:
              patch('app.services.search_service.SearchService._get_walrus_network_stats', return_value=None) as mock_walrus_stats, \
              patch('app.services.search_service.SearchService._get_walrus_price', return_value=None) as mock_price, \
              patch('app.services.search_service.SearchService._search_walrus', return_value=None) as mock_walrus_search, \
+             patch('app.services.search_service.SearchService._search_authoritative_sources', return_value=None) as mock_auth, \
              patch('app.services.search_service.SearchService._search_tavily_site_specific', return_value=None) as mock_tavily_site, \
              patch('app.services.search_service.SearchService._search_duckduckgo_site_specific', return_value=None) as mock_ddg_site, \
              patch('app.services.search_service.SearchService._search_tavily', return_value=None) as mock_tavily_general, \
