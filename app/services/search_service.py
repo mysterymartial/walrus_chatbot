@@ -369,7 +369,7 @@ class SearchService:
 
         # Check Walrus patterns first for faster response
         walrus_patterns = {
-            "what_is_walrus": [r"what is walrus", r"walrus blockchain", r"about walrus", r"walrus overview", r"define walrus", r"walrus definition", r"walrus", r"what is walruss", r"walruss", r"what.*walruss"],
+            "what_is_walrus": [r"what is walrus", r"walrus blockchain", r"about walrus", r"walrus overview", r"define walrus", r"walrus definition", r"what is walruss", r"walruss", r"what.*walruss"],
             "walrus_da": [r"walrus da", r"data availability", r"walrus data availability", r"da solution"],
             "walrus_blobs": [r"walrus blob", r"blob storage", r"data blob", r"walrus data blob", r"blob", r"walrus.*blob"],
             "walrus_architecture": [r"walrus architecture", r"how walrus works", r"walrus design", r"walrus structure"],
