@@ -43,6 +43,9 @@ async def chat(
 
         context = search_service.search_sui_docs(validated_query)
 
+        # If no context found, still let AI service handle with its knowledge
+        if context is None:
+            context = "No specific search results found, but I can provide information based on my training data about blockchain, Sui, Move, and Walrus topics."
 
         ai_response = ai_service.generate_response(validated_query, context)
 

@@ -404,8 +404,8 @@ class TestSearchService:
             assert mock_ddg_site.called
             assert mock_tavily_general.called
             assert mock_ddg_general.called
-            assert "No specific search results found" in result
-            assert "training data" in result
+            # The search service now returns None when all methods are exhausted
+            assert result is None
 
 class TestAIService:
 

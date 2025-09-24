@@ -30,7 +30,16 @@ class SearchService:
         blockchain_terms = [
             r"blockchain", r"crypto", r"cryptocurrency", r"defi", r"nft", r"dapp",
             r"sui", r"move", r"walrus", r"smart contract", r"token", r"coin",
-            r"validator", r"consensus", r"staking", r"gas", r"transaction"
+            r"validator", r"consensus", r"staking", r"gas", r"transaction",
+            r"proof of work", r"proof of stake", r"pow", r"pos", r"mining", r"miners",
+            r"distributed ledger", r"ledger", r"hash", r"block", r"epoch",
+            r"decentralized", r"decentralization", r"peer to peer", r"p2p",
+            r"wallet", r"address", r"private key", r"public key", r"signature",
+            r"bitcoin", r"ethereum", r"solana", r"cardano", r"polkadot",
+            r"blockhain", r"blockhchain", r"cryptocurreny", r"cryptocurrencty",
+            r"install", r"setup", r"development", r"programming", r"tutorial",
+            r"guide", r"how to", r"getting started", r"beginner", r"api",
+            r"walrus labs", r"walruslabs", r"walruss", r"walruss labs"
         ]
         return any(re.search(term, q, re.IGNORECASE) for term in blockchain_terms)
 
@@ -362,7 +371,7 @@ class SearchService:
 
         # Check Walrus patterns first for faster response
         walrus_patterns = {
-            "what_is_walrus": [r"what is walrus", r"walrus blockchain", r"about walrus", r"walrus overview", r"define walrus", r"walrus definition", r"walrus"],
+            "what_is_walrus": [r"what is walrus", r"walrus blockchain", r"about walrus", r"walrus overview", r"define walrus", r"walrus definition", r"walrus", r"what is walruss", r"walruss", r"what.*walruss"],
             "walrus_da": [r"walrus da", r"data availability", r"walrus data availability", r"da solution"],
             "walrus_blobs": [r"walrus blob", r"blob storage", r"data blob", r"walrus data blob", r"blob", r"walrus.*blob"],
             "walrus_architecture": [r"walrus architecture", r"how walrus works", r"walrus design", r"walrus structure"],
@@ -392,8 +401,8 @@ class SearchService:
             "sui_validators": [r"sui validator", r"sui validators", r"how many sui validator", r"sui network", r"sui nodes"],
             "sui_epochs": [r"sui epoch", r"sui epochs", r"epoch.*sui", r"sui.*epoch", r"epoch"],
             "move_smart_contracts": [r"move smart contract", r"move smart contracts", r"move contract", r"move contracts", r"smart contract", r"smart contracts", r"move.*contract", r"contract.*move"],
-            "what_is_blockchain": [r"what is blockchain", r"blockchain", r"about blockchain", r"blockchain overview", r"define blockchain", r"blockchain definition", r"what.*blockchain"],
-            "types_of_blockchain": [r"types of blockchain", r"blockchain types", r"kinds of blockchain", r"blockchain categories", r"different blockchain", r"blockchain classification"],
+            "what_is_blockchain": [r"what is blockchain", r"blockchain", r"about blockchain", r"blockchain overview", r"define blockchain", r"blockchain definition", r"what.*blockchain", r"what is blockhain", r"blockhain", r"what.*blockhain"],
+            "types_of_blockchain": [r"types of blockchain", r"blockchain types", r"kinds of blockchain", r"blockchain categories", r"different blockchain", r"blockchain classification", r"types of blockhain", r"blockhain types"],
             "distributed_ledger": [r"distributed ledger", r"distributed database", r"ledger technology", r"distributed system", r"what.*distributed.*ledger"],
             "proof_of_work": [r"proof of work", r"pow", r"mining", r"miners", r"what.*proof.*work", r"how.*mining.*work"],
             "sui_blockchain_type": [r"what type.*sui", r"sui.*type", r"what.*blockchain.*sui", r"sui.*blockchain.*type", r"type.*sui.*blockchain"],
@@ -492,5 +501,5 @@ class SearchService:
 
         # STEP 11: Final fallback - let AI service handle with its knowledge
         self.logger.info("All search methods exhausted - allowing AI service to handle with its knowledge")
-        return "No specific search results found, but I can provide information based on my training data about blockchain, Sui, Move, and Walrus topics."
+        return None
 
