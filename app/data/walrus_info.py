@@ -165,11 +165,11 @@ What are Walrus Epochs:
 - Epoch boundaries trigger validator set updates and reward distributions
 
 Epoch Duration:
-- Standard Duration: 14 days per epoch
+- **14 days per epoch** - This is the standard duration for all Walrus epochs
 - Epoch Length: 14 days = 336 hours = 20,160 minutes = 1,209,600 seconds
 - Epoch Cycle: Continuous 14-day periods with no gaps
 - Time Zone: Epochs are typically based on UTC time
-- Consistency: All epochs have the same duration for predictability
+- Consistency: All epochs have the same 14-day duration for predictability
 
 Epoch Functions:
 - Validator Set Management: Determines which validators are active in each epoch
