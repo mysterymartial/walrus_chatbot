@@ -369,7 +369,7 @@ class SearchService:
             "walrus_token": [r"walrus token", r"wal token", r"wal coin", r"walrus economics", r"walrus tokenomics"],
             "walrus_sui": [r"walrus sui", r"walrus on sui", r"walrus sui integration"],
             "walrus_validators": [r"walrus validator", r"walrus validators", r"how many validator", r"walrus network", r"walrus nodes", r"validator.*walrus", r"how many.*walrus", r"validator", r"validators", r"how many.*validator", r"walrus.*validator", r"validator.*exist", r"validator.*count"],
-            "walrus_epochs": [r"walrus epoch", r"walrus epochs", r"walrus epoch.*", r"epoch.*walrus", r"walrus.*epoch"],
+            "walrus_epochs": [r"walrus epoch", r"walrus epochs", r"walrus epoch.*", r"epoch.*walrus", r"walrus.*epoch", r"how many.*day.*epoch", r"epoch.*day", r"walrus.*day", r"how long.*epoch", r"epoch.*duration", r"walrus.*duration"],
             "walrus_blob_ids": [r"walrus blob id", r"walrus blob ids", r"blob id", r"blob ids", r"walrus.*blob.*id", r"blob.*id.*walrus"]
         }
 

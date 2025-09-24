@@ -159,10 +159,17 @@ Real-time network statistics including validator count, total stake, and network
 Walrus Epochs are time-based periods that govern the network's operation and validator rotation:
 
 What are Walrus Epochs:
-- Epochs are fixed time periods (typically 24 hours) that define network cycles
+- Epochs are fixed time periods (14 days) that define network cycles
 - Each epoch has a specific set of active validators
 - Epochs ensure network decentralization through validator rotation
 - Epoch boundaries trigger validator set updates and reward distributions
+
+Epoch Duration:
+- Standard Duration: 14 days per epoch
+- Epoch Length: 14 days = 336 hours = 20,160 minutes = 1,209,600 seconds
+- Epoch Cycle: Continuous 14-day periods with no gaps
+- Time Zone: Epochs are typically based on UTC time
+- Consistency: All epochs have the same duration for predictability
 
 Epoch Functions:
 - Validator Set Management: Determines which validators are active in each epoch
